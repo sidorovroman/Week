@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity{
     private Dialog addActionDialog;
     private TextView from;
     private TextView to;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity{
         timeLineContainer = (RelativeLayout) findViewById(R.id.timeline);
         DrawView drawView = new DrawView(this);
         timeLineContainer.addView(drawView);
+        // создаем объект для создания и управления версиями БД
+        dbHelper = new DBHelper(this);
     }
 
     private void showAlertDialog() {
