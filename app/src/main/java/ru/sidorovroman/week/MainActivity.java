@@ -1,28 +1,25 @@
 package ru.sidorovroman.week;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -44,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView to;
     private DBHelper dbHelper;
 
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         initTimePicker();
 
@@ -69,10 +68,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationShit(toolbar);
 
         timeLineContainer = (RelativeLayout) findViewById(R.id.timeline);
-        DrawView drawView = new DrawView(this);
+
+        DrawView drawView = new DrawView(this, getScreenWidth());
         timeLineContainer.addView(drawView);
+
         // создаем объект для создания и управления версиями БД
         dbHelper = new DBHelper(this);
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new DayFragment(), getString(R.string.monday));
+        adapter.addFragment(new DayFragment(), getString(R.string.tuesday));
+        adapter.addFragment(new DayFragment(), getString(R.string.wednesday));
+        adapter.addFragment(new DayFragment(), getString(R.string.thursday));
+        adapter.addFragment(new DayFragment(), getString(R.string.friday));
+        adapter.addFragment(new DayFragment(), getString(R.string.saturday));
+        adapter.addFragment(new DayFragment(), getString(R.string.sunday));
+        viewPager.setAdapter(adapter);
     }
 
     private void navigationShit(Toolbar toolbar) {
@@ -213,70 +232,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 now.get(Calendar.MINUTE),
                 true
         );
-    }
-
-    private class DrawView extends View {
-
-        private final String LOG_TAG = DrawView.class.getSimpleName();
-        private final float timeLineWidth;
-        private final float timeInterval;
-        private Paint timeLinePaint;
-        private Paint pointPaint;
-        private Paint textPaint;
-        private Paint busyPaint;
-
-        private int heightOfAction = 100;
-        private int startX = 30;
-
-        private long minutesInHour = 60;
-        private long hoursInDay = 24;
-        private long minutesInday = hoursInDay * minutesInHour;
-
-        public DrawView(Context context) {
-            super(context);
-            timeLinePaint = new Paint();
-            textPaint = new Paint();
-            pointPaint = new Paint();
-            busyPaint = new Paint();
-
-            timeLineWidth = getScreenWidth() * 0.8f;
-            timeInterval = timeLineWidth / hoursInDay;
-
-            Log.d(LOG_TAG, "getScreenWidth:" + getScreenWidth());
-            Log.d(LOG_TAG, "timeLineWidth:" + timeLineWidth);
-            Log.d(LOG_TAG, "timeInterval:" + timeInterval);
-
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-
-            timeLinePaint.setColor(Color.LTGRAY);
-            timeLinePaint.setStrokeWidth(3);
-            canvas.drawLine(startX, heightOfAction, timeLineWidth + startX, heightOfAction, timeLinePaint);
-
-            pointPaint.setColor(Color.LTGRAY);
-            pointPaint.setStrokeWidth(6);
-
-            textPaint.setTextSize(18);
-            textPaint.setColor(Color.DKGRAY);
-            float pointX;
-
-            for(int i = 0; i <= hoursInDay; i++ ){
-                pointX = i * timeInterval + startX;
-                canvas.drawPoint(pointX, heightOfAction, pointPaint);
-                canvas.drawText(String.valueOf(i), pointX, heightOfAction + 20, textPaint);
-            }
-            addTimeLine(canvas,0,7,Color.parseColor("#673AB7"));
-
-        }
-
-        private void addTimeLine(Canvas canvas, int from, int to, int color) {
-            busyPaint.setColor(color);
-            busyPaint.setAlpha(200);
-            busyPaint.setStrokeWidth(40);
-            canvas.drawLine(from * timeInterval + startX, heightOfAction - 20, to * timeInterval + startX, heightOfAction - 20, busyPaint);
-        }
     }
 
     private long getScreenWidth() {
