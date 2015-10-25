@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "ru.sidorovroman.fulltime"
+        applicationId "ru.sidorovroman.week"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1

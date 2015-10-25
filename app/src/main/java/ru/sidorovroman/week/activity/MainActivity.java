@@ -1,8 +1,7 @@
-package ru.sidorovroman.week;
+package ru.sidorovroman.week.activity;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -15,13 +14,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
@@ -29,11 +26,15 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
+import ru.sidorovroman.week.DBHelper;
+import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.ViewPagerAdapter;
+import ru.sidorovroman.week.fragments.DayFragment;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private RelativeLayout timeLineContainer;
     private TimePickerDialog timePickerDialogFrom;
     private TimePickerDialog timePickerDialogTo;
     private Dialog addActionDialog;
@@ -67,10 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationShit(toolbar);
 
-        timeLineContainer = (RelativeLayout) findViewById(R.id.timeline);
 
-        DrawView drawView = new DrawView(this, getScreenWidth());
-        timeLineContainer.addView(drawView);
 
         // создаем объект для создания и управления версиями БД
         dbHelper = new DBHelper(this);
@@ -234,10 +232,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
     }
 
-    private long getScreenWidth() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        return size.x;
-    }
 }
