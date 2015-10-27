@@ -1,7 +1,11 @@
 package ru.sidorovroman.week.activity;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -33,13 +37,8 @@ import ru.sidorovroman.week.fragments.DayFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
-
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private TimePickerDialog timePickerDialogFrom;
-    private TimePickerDialog timePickerDialogTo;
-    private Dialog addActionDialog;
-    private TextView from;
-    private TextView to;
+
     private DBHelper dbHelper;
 
     private TabLayout tabLayout;
@@ -53,16 +52,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        initTimePicker();
 
+        final Context context = this;
+        final Activity activity = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showAlertDialog();
-
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(context, ActionActivity.class));
             }
         });
 
@@ -159,77 +156,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    private void showAlertDialog() {
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View view = factory.inflate(R.layout.dialog_add_action, null);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Добавление деятельности")
-                .setView(view)
-                .setIcon(R.mipmap.ic_launcher)
-                .setCancelable(false)
-                .setNegativeButton("Отмена",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        })
-
-                .setPositiveButton("Ok",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-
-        addActionDialog = builder.create();
-
-        EditText name = (EditText) view.findViewById(R.id.name);
-        from = (TextView) view.findViewById(R.id.from);
-        from.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timePickerDialogFrom.show(getFragmentManager(), "TimePickerDialogFrom");
-            }
-        });
-        to = (TextView) view.findViewById(R.id.to);
-        to.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timePickerDialogTo.show(getFragmentManager(), "TimePickerDialogTo");
-            }
-        });
-        addActionDialog.show();
-    }
-//todo можем ли мы использовать один timePicker для разных полей, используя tag?
-    private void initTimePicker() {
-        Calendar now = Calendar.getInstance();
-
-        timePickerDialogFrom = TimePickerDialog.newInstance(
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        from.setText(""+hourOfDay + ": " + minute);
-                    }
-                },
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
-                true
-        );
-
-        timePickerDialogTo = TimePickerDialog.newInstance(
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        to.setText(""+hourOfDay + ": " + minute);
-                    }
-                },
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
-                true
-        );
-    }
-
 }
