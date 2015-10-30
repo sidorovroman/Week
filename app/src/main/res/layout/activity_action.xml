@@ -17,7 +17,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:paddingBottom="15dp"
         android:paddingTop="15dp">
         <TextView
@@ -51,4 +51,31 @@
             android:layout_marginLeft="5dp" />
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отмена"
+            android:id="@+id/btnCancel"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/btnSave"
+            android:layout_toStartOf="@+id/btnSave" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="сохранить"
+            android:id="@+id/btnSave"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
 </LinearLayout>
