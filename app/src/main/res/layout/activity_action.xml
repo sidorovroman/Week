@@ -9,10 +9,20 @@
         android:id="@+id/name" />
 
 
-    <ru.sidorovroman.week.MultiSelectionSpinner
+    <EditText
         android:id="@+id/mySpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/days"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!--<ru.sidorovroman.week.MultiSelectionSpinner-->
+        <!--android:id="@+id/mySpinner"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
 
     <LinearLayout
         android:orientation="horizontal"

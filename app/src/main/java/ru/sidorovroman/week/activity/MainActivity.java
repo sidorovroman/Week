@@ -20,6 +20,7 @@ import android.view.View;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.ViewPagerAdapter;
+import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.fragments.DayFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -66,13 +67,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new DayFragment(), getString(R.string.monday));
-        adapter.addFragment(new DayFragment(), getString(R.string.tuesday));
-        adapter.addFragment(new DayFragment(), getString(R.string.wednesday));
-        adapter.addFragment(new DayFragment(), getString(R.string.thursday));
-        adapter.addFragment(new DayFragment(), getString(R.string.friday));
-        adapter.addFragment(new DayFragment(), getString(R.string.saturday));
-        adapter.addFragment(new DayFragment(), getString(R.string.sunday));
+        for (WeekDay day : WeekDay.values()) {
+            adapter.addFragment(new DayFragment(day), day.getLabel());
+        }
         viewPager.setAdapter(adapter);
     }
 

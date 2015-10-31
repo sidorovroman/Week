@@ -1,11 +1,11 @@
 package ru.sidorovroman.week.activity;
 
 import android.content.ContentValues;
-import android.database.Cursor;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -22,8 +22,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.sidorovroman.week.db.WeekDbHelper;
-import ru.sidorovroman.week.MultiSelectionSpinner;
 import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.enums.Category;
+import ru.sidorovroman.week.enums.WeekDay;
 
 /**
  * Created by sidorovroman on 26.10.15.
@@ -31,8 +32,10 @@ import ru.sidorovroman.week.R;
 public class ActionActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ActionActivity.class.getSimpleName();
-    private MultiSelectionSpinner multiSelectionSpinner;
-
+    private EditText multiSelectionSpinner;
+    private EditText days;
+    final List<Integer> selectedCategories =new ArrayList();
+    final List<Integer> selectedDays =new ArrayList();
     private TimePickerDialog timePickerDialogFrom;
     private TimePickerDialog timePickerDialogTo;
     private TextView from;
@@ -43,6 +46,7 @@ public class ActionActivity extends AppCompatActivity {
     private EditText nameField;
     private int timeFromValue;
     private int timeToValue;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +55,21 @@ public class ActionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_action);
 
-        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
-        multiSelectionSpinner = (MultiSelectionSpinner) findViewById(R.id.mySpinner);
-        multiSelectionSpinner.setItems(array);
-        multiSelectionSpinner.setSelection(new int[]{2, 6});
+        multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
+        days = (EditText) findViewById(R.id.days);
 
+        multiSelectionSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCategoriesDialog();
+            }
+        });
+        days.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDaysDialog();
+            }
+        });
         initTimePicker();
 
         btnCancel = (Button) findViewById(R.id.btnCancel);
@@ -68,11 +82,10 @@ public class ActionActivity extends AppCompatActivity {
                 SQLiteDatabase db = weekDbHelper.getWritableDatabase();
 
                 ContentValues cv = prepareActionEntries();
-                db.insert(WeekDbHelper.ActionEntry.TABLE_NAME, null, cv);
+                long actionId = db.insert(WeekDbHelper.ActionEntry.TABLE_NAME, null, cv);
 
-                cv = prepareSchedulerEntries();
-                db.insert(WeekDbHelper.ShedulerEntry.TABLE_NAME, null, cv);
-                readAll();
+                cv = prepareSchedulerEntries(actionId);
+                db.insert(WeekDbHelper.SchedulerEntry.TABLE_NAME, null, cv);
                 db.close();
 
             }
@@ -104,21 +117,120 @@ public class ActionActivity extends AppCompatActivity {
         weekDbHelper = new WeekDbHelper(this);
     }
 
-    private ContentValues prepareSchedulerEntries() {
+    private void openDaysDialog() {
+        WeekDay[] values = WeekDay.values();
+        CharSequence[] items = new CharSequence[values.length];
+        for (int i = 0; i < values.length; i++) {
+            items[i] = values[i].getLabel();
+        }
+        boolean[] checkedItems = new boolean[values.length];
+        for (Integer catIndex : selectedDays) {
+            checkedItems[catIndex] = true;
+        }
 
-        List<Integer> weekDays = new ArrayList<>();
-        weekDays.add(1);
-        weekDays.add(5);
-        JSONArray weekDaysJsonArray = new JSONArray(weekDays);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select The Difficulty Level");
+        builder.setMultiChoiceItems(items, checkedItems,
+                new DialogInterface.OnMultiChoiceClickListener() {
+                    // indexSelected contains the index of item (of which checkbox checked)
+                    @Override
+                    public void onClick(DialogInterface dialog, int indexSelected,
+                                        boolean isChecked) {
+                        if (isChecked) {
+                            selectedDays.add(indexSelected);
+                        } else if (selectedDays.contains(indexSelected)) {
+                            selectedDays.remove(Integer.valueOf(indexSelected));
+                        }
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        String text = "";
+                        for (Integer dayIndex : selectedDays) {
+                            WeekDay day = WeekDay.getDayByIndex(dayIndex);
+                            text += day.getLabel();
+                        }
+
+                        days.setText(text);
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Your code when user clicked on Cancel
+
+                    }
+                });
+
+        dialog = builder.create();//AlertDialog dialog; create like this outside onClick
+        dialog.show();
+    }
+
+    private void openCategoriesDialog() {
+        Category[] values = Category.values();
+        CharSequence[] items = new CharSequence[values.length];
+        for (int i = 0; i < values.length; i++) {
+            items[i] = values[i].getLabel();
+        }
+
+        boolean[] checkedItems = new boolean[values.length];
+        for (Integer catIndex : selectedCategories) {
+            checkedItems[catIndex] = true;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select The Difficulty Level");
+        builder.setMultiChoiceItems(items, checkedItems,
+                new DialogInterface.OnMultiChoiceClickListener() {
+                    // indexSelected contains the index of item (of which checkbox checked)
+                    @Override
+                    public void onClick(DialogInterface dialog, int indexSelected,
+                                        boolean isChecked) {
+                        if (isChecked) {
+                            selectedCategories.add(indexSelected);
+                        } else if (selectedCategories.contains(indexSelected)) {
+                            selectedCategories.remove(Integer.valueOf(indexSelected));
+                        }
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+
+                        String text = "";
+                        for (Integer dayIndex : selectedCategories) {
+                            Category category = Category.getCategoryByIndex(dayIndex);
+                            text += category.getLabel();
+                        }
+
+                        multiSelectionSpinner.setText(text);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Your code when user clicked on Cancel
+
+                    }
+                });
+
+        dialog = builder.create();//AlertDialog dialog; create like this outside onClick
+        dialog.show();
+    }
+
+    private ContentValues prepareSchedulerEntries(long actionId) {
 
         // создаем объект для данных
         ContentValues cv = new ContentValues();
-        //todo
-        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS, weekDaysJsonArray.toString());
-        //todo
-        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_ACTION_ID,12333);
-        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM,timeFromValue);
-        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO,timeToValue);
+
+        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_WEEK_DAY_IDS, new JSONArray(selectedDays).toString());
+        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_ACTION_ID,actionId);
+        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_TIME_FROM,timeFromValue);
+        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_TIME_TO,timeToValue);
 
         return cv;
     }
@@ -126,8 +238,7 @@ public class ActionActivity extends AppCompatActivity {
     private ContentValues prepareActionEntries() {
 
         String name = nameField.getText().toString();
-        List<String> categories = multiSelectionSpinner.getSelectedStrings();
-        JSONArray categoriesJsonArray = new JSONArray(categories);
+        JSONArray categoriesJsonArray = new JSONArray(selectedCategories);
 
         // создаем объект для данных
         ContentValues cv = new ContentValues();
@@ -137,93 +248,6 @@ public class ActionActivity extends AppCompatActivity {
         return cv;
     }
 
-    private void readAll() {
-
-        SQLiteDatabase db = weekDbHelper.getReadableDatabase();
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projection = {
-                WeekDbHelper.ActionEntry._ID,
-                WeekDbHelper.ActionEntry.COLUMN_NAME,
-                WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS
-        };
-        Cursor actionCursor = db.query(
-                WeekDbHelper.ActionEntry.TABLE_NAME,  // The table to query
-                projection,                               // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                null                                      // The sort order
-        );
-
-        // ставим позицию курсора на первую строку выборки
-        // если в выборке нет строк, вернется false
-        if (actionCursor.moveToFirst()) {
-
-            // определяем номера столбцов по имени в выборке
-            int idColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry._ID);
-            int nameColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry.COLUMN_NAME);
-            int categoriesColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS);
-
-            do {
-                // получаем значения по номерам столбцов и пишем все в лог
-                Log.d(LOG_TAG,
-                        "ID = " + actionCursor.getInt(idColIndex) +
-                                ", name = " + actionCursor.getString(nameColIndex) +
-                                ", categories = " + actionCursor.getString(categoriesColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
-            } while (actionCursor.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        actionCursor.close();
-
-
-        // Define a projection1 that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projectionScheduler = {
-                WeekDbHelper.ShedulerEntry._ID,
-                WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS,
-                WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM,
-                WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO
-        };
-        Cursor scedulerCursor = db.query(
-                WeekDbHelper.ShedulerEntry.TABLE_NAME,  // The table to query
-                projectionScheduler,                               // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                null                                      // The sort order
-        );
-
-        // ставим позицию курсора на первую строку выборки
-        // если в выборке нет строк, вернется false
-        if (scedulerCursor.moveToFirst()) {
-
-            // определяем номера столбцов по имени в выборке
-            int idColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry._ID);
-            int weekDaysColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS);
-            int fromColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM);
-            int toColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO);
-
-            do {
-                // получаем значения по номерам столбцов и пишем все в лог
-                Log.d(LOG_TAG,
-                        "ID = " + scedulerCursor.getInt(idColIndex) +
-                                ", weekDays = " + scedulerCursor.getString(weekDaysColIndex) +
-                                ", from = " + scedulerCursor.getString(fromColIndex) +
-                                ", to = " + scedulerCursor.getString(toColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
-            } while (scedulerCursor.moveToNext());
-        } else
-            Log.d(LOG_TAG, "0 rows");
-        scedulerCursor.close();
-
-    }
     //todo можем ли мы использовать один timePicker для разных полей, используя tag?
     private void initTimePicker() {
         Calendar now = Calendar.getInstance();
