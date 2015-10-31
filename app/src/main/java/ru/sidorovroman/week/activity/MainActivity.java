@@ -17,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import ru.sidorovroman.week.db.FeedReaderDbHelper;
+import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.ViewPagerAdapter;
 import ru.sidorovroman.week.fragments.DayFragment;
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private FeedReaderDbHelper feedReaderDbHelper;
+    private WeekDbHelper weekDbHelper;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         // создаем объект для создания и управления версиями БД
-        feedReaderDbHelper = new FeedReaderDbHelper(this);
+        weekDbHelper = new WeekDbHelper(this);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);

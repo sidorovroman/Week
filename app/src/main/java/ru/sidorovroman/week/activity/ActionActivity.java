@@ -15,10 +15,13 @@ import android.widget.TextView;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.sidorovroman.week.db.FeedReaderDbHelper;
+import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.MultiSelectionSpinner;
 import ru.sidorovroman.week.R;
 
@@ -36,8 +39,10 @@ public class ActionActivity extends AppCompatActivity {
     private TextView to;
     private Button btnCancel;
     private Button btnSave;
-    private FeedReaderDbHelper feedReaderDbHelper;
+    private WeekDbHelper weekDbHelper;
     private EditText nameField;
+    private int timeFromValue;
+    private int timeToValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,23 +64,17 @@ public class ActionActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = nameField.getText().toString();
-                List<String> categories = multiSelectionSpinner.getSelectedStrings();
-                String fromString = from.getText().toString();
-                String toString = to.getText().toString();
 
-                // создаем объект для данных
-                ContentValues cv = new ContentValues();
-                // подключаемся к БД
-                SQLiteDatabase db = feedReaderDbHelper.getWritableDatabase();
-                cv.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_NAME, name);
-                cv.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_CATEGORIES, String.valueOf(categories));
-                cv.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_FROM, fromString);
-                cv.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TO, toString);
+                SQLiteDatabase db = weekDbHelper.getWritableDatabase();
 
-                long rowID = db.insert(FeedReaderDbHelper.FeedEntry.TABLE_NAME, null, cv);
+                ContentValues cv = prepareActionEntries();
+                db.insert(WeekDbHelper.ActionEntry.TABLE_NAME, null, cv);
+
+                cv = prepareSchedulerEntries();
+                db.insert(WeekDbHelper.ShedulerEntry.TABLE_NAME, null, cv);
                 readAll();
                 db.close();
+
             }
 
 
@@ -102,23 +101,55 @@ public class ActionActivity extends AppCompatActivity {
             }
         });
 
-        feedReaderDbHelper = new FeedReaderDbHelper(this);
+        weekDbHelper = new WeekDbHelper(this);
     }
+
+    private ContentValues prepareSchedulerEntries() {
+
+        List<Integer> weekDays = new ArrayList<>();
+        weekDays.add(1);
+        weekDays.add(5);
+        JSONArray weekDaysJsonArray = new JSONArray(weekDays);
+
+        // создаем объект для данных
+        ContentValues cv = new ContentValues();
+        //todo
+        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS, weekDaysJsonArray.toString());
+        //todo
+        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_ACTION_ID,12333);
+        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM,timeFromValue);
+        cv.put(WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO,timeToValue);
+
+        return cv;
+    }
+
+    private ContentValues prepareActionEntries() {
+
+        String name = nameField.getText().toString();
+        List<String> categories = multiSelectionSpinner.getSelectedStrings();
+        JSONArray categoriesJsonArray = new JSONArray(categories);
+
+        // создаем объект для данных
+        ContentValues cv = new ContentValues();
+        cv.put(WeekDbHelper.ActionEntry.COLUMN_NAME, name);
+        cv.put(WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS, categoriesJsonArray.toString());
+
+        return cv;
+    }
+
     private void readAll() {
 
-        SQLiteDatabase db = feedReaderDbHelper.getReadableDatabase();
+        SQLiteDatabase db = weekDbHelper.getReadableDatabase();
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection = {
-                FeedReaderDbHelper.FeedEntry._ID,
-                FeedReaderDbHelper.FeedEntry.COLUMN_NAME_NAME,
-                FeedReaderDbHelper.FeedEntry.COLUMN_NAME_CATEGORIES,
-                FeedReaderDbHelper.FeedEntry.COLUMN_NAME_FROM,
-                FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TO
+                WeekDbHelper.ActionEntry._ID,
+                WeekDbHelper.ActionEntry.COLUMN_NAME,
+                WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS
         };
-        Cursor c = db.query(
-                FeedReaderDbHelper.FeedEntry.TABLE_NAME,  // The table to query
+        Cursor actionCursor = db.query(
+                WeekDbHelper.ActionEntry.TABLE_NAME,  // The table to query
                 projection,                               // The columns to return
                 null,                                     // The columns for the WHERE clause
                 null,                                     // The values for the WHERE clause
@@ -129,29 +160,68 @@ public class ActionActivity extends AppCompatActivity {
 
         // ставим позицию курсора на первую строку выборки
         // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) {
+        if (actionCursor.moveToFirst()) {
 
             // определяем номера столбцов по имени в выборке
-            int idColIndex = c.getColumnIndex(FeedReaderDbHelper.FeedEntry._ID);
-            int nameColIndex = c.getColumnIndex(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_NAME);
-            int categoriesColIndex = c.getColumnIndex(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_CATEGORIES);
-            int fromColIndex = c.getColumnIndex(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_FROM);
-            int toColIndex = c.getColumnIndex(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TO);
+            int idColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry._ID);
+            int nameColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry.COLUMN_NAME);
+            int categoriesColIndex = actionCursor.getColumnIndex(WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS);
 
             do {
                 // получаем значения по номерам столбцов и пишем все в лог
                 Log.d(LOG_TAG,
-                        "ID = " + c.getInt(idColIndex) +
-                                ", name = " + c.getString(nameColIndex) +
-                                ", categories = " + c.getString(categoriesColIndex) +
-                                ", from = " + c.getString(fromColIndex) +
-                                ", to = " + c.getString(toColIndex));
+                        "ID = " + actionCursor.getInt(idColIndex) +
+                                ", name = " + actionCursor.getString(nameColIndex) +
+                                ", categories = " + actionCursor.getString(categoriesColIndex));
                 // переход на следующую строку
                 // а если следующей нет (текущая - последняя), то false - выходим из цикла
-            } while (c.moveToNext());
+            } while (actionCursor.moveToNext());
         } else
             Log.d(LOG_TAG, "0 rows");
-        c.close();
+        actionCursor.close();
+
+
+        // Define a projection1 that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projectionScheduler = {
+                WeekDbHelper.ShedulerEntry._ID,
+                WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS,
+                WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM,
+                WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO
+        };
+        Cursor scedulerCursor = db.query(
+                WeekDbHelper.ShedulerEntry.TABLE_NAME,  // The table to query
+                projectionScheduler,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                      // The sort order
+        );
+
+        // ставим позицию курсора на первую строку выборки
+        // если в выборке нет строк, вернется false
+        if (scedulerCursor.moveToFirst()) {
+
+            // определяем номера столбцов по имени в выборке
+            int idColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry._ID);
+            int weekDaysColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_WEEK_DAY_IDS);
+            int fromColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_TIME_FROM);
+            int toColIndex = scedulerCursor.getColumnIndex(WeekDbHelper.ShedulerEntry.COLUMN_TIME_TO);
+
+            do {
+                // получаем значения по номерам столбцов и пишем все в лог
+                Log.d(LOG_TAG,
+                        "ID = " + scedulerCursor.getInt(idColIndex) +
+                                ", weekDays = " + scedulerCursor.getString(weekDaysColIndex) +
+                                ", from = " + scedulerCursor.getString(fromColIndex) +
+                                ", to = " + scedulerCursor.getString(toColIndex));
+                // переход на следующую строку
+                // а если следующей нет (текущая - последняя), то false - выходим из цикла
+            } while (scedulerCursor.moveToNext());
+        } else
+            Log.d(LOG_TAG, "0 rows");
+        scedulerCursor.close();
 
     }
     //todo можем ли мы использовать один timePicker для разных полей, используя tag?
@@ -163,6 +233,7 @@ public class ActionActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
                         from.setText("" + hourOfDay + ": " + minute);
+                        timeFromValue = hourOfDay * 60 + minute;
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
@@ -175,6 +246,7 @@ public class ActionActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
                         to.setText(""+hourOfDay + ": " + minute);
+                        timeToValue = hourOfDay * 60 + minute;
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
