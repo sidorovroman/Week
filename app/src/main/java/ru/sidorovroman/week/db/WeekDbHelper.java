@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.sidorovroman.week.enums.WeekDay;
+import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.Scheduler;
 
 /**
@@ -95,11 +96,7 @@ public class WeekDbHelper extends SQLiteOpenHelper {
     public List<Scheduler> getSchedulerByWeekDay(WeekDay day) {
         List<Scheduler> filteredScheduler = new ArrayList<>();
         List<Scheduler> allScheduler = null;
-        try {
-            allScheduler = getAllScheduler();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        allScheduler = getAllScheduler();
         for (Scheduler schedule : allScheduler) {
             List<Integer> weekDayIds = schedule.getWeekDayIds();
             for (Integer dayId : weekDayIds) {
@@ -112,12 +109,14 @@ public class WeekDbHelper extends SQLiteOpenHelper {
         return filteredScheduler;
     }
 
-    public List<Scheduler> getAllScheduler() throws JSONException {
+    public List<Scheduler> getAllScheduler() {
         List<Scheduler> schedulerList = new ArrayList<Scheduler>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + SchedulerEntry.TABLE_NAME;
 
-        SQLiteDatabase db = this.getWritableDatabase();
+//        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
@@ -127,10 +126,19 @@ public class WeekDbHelper extends SQLiteOpenHelper {
                 scheduler.setId(Long.parseLong(cursor.getString(0)));
 
                 List<Integer> weekDaysList = new ArrayList<>();
-                JSONArray jsonArray = new JSONArray(cursor.getString(1));
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(cursor.getString(1));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 for (int i = 0; i < jsonArray.length(); i++) {
-                    weekDaysList.add(jsonArray.getInt(i));
+                    try {
+                        weekDaysList.add(jsonArray.getInt(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 scheduler.setWeekDayIds(weekDaysList);
                 scheduler.setActionId(cursor.getLong(2));
@@ -143,5 +151,42 @@ public class WeekDbHelper extends SQLiteOpenHelper {
 
         // return contact list
         return schedulerList;
+    }
+    public List<Action> getAllActions() {
+        List<Action> actionList = new ArrayList<Action>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + ActionEntry.TABLE_NAME;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Action action = new Action();
+                action.setId(Integer.parseInt(cursor.getString(0)));
+                action.setName(cursor.getString(1));
+
+                List<Integer> categoryIdsList = new ArrayList<>();
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(cursor.getString(2));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        categoryIdsList.add(jsonArray.getInt(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                actionList.add(action);
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return actionList;
     }
 }

@@ -87,7 +87,7 @@ public class ActionActivity extends AppCompatActivity {
                 cv = prepareSchedulerEntries(actionId);
                 db.insert(WeekDbHelper.SchedulerEntry.TABLE_NAME, null, cv);
                 db.close();
-
+                finish();
             }
 
 
@@ -95,7 +95,7 @@ public class ActionActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                finish();
             }
         });
         nameField = (EditText) findViewById(R.id.name);

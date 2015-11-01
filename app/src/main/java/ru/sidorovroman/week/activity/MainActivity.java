@@ -1,27 +1,19 @@
 package ru.sidorovroman.week.activity;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
-import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.R;
-import ru.sidorovroman.week.ViewPagerAdapter;
-import ru.sidorovroman.week.enums.WeekDay;
-import ru.sidorovroman.week.fragments.DayFragment;
+import ru.sidorovroman.week.db.WeekDbHelper;
+import ru.sidorovroman.week.fragments.ActionsFragment;
+import ru.sidorovroman.week.fragments.DaysFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -29,8 +21,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private WeekDbHelper weekDbHelper;
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,37 +30,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-        final Context context = this;
-        final Activity activity = this;
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(context, ActionActivity.class));
-            }
-        });
-
         navigationShit(toolbar);
-
-
 
         // создаем объект для создания и управления версиями БД
         weekDbHelper = new WeekDbHelper(this);
-
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
-
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
-    }
-
-    private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        for (WeekDay day : WeekDay.values()) {
-            adapter.addFragment(new DayFragment(day), day.getLabel());
-        }
-        viewPager.setAdapter(adapter);
     }
 
     private void navigationShit(Toolbar toolbar) {
@@ -123,9 +86,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_camara) {
-            // Handle the camera action
+            DaysFragment fragment = new DaysFragment();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.frame,fragment);
+            fragmentTransaction.commit();
         } else if (id == R.id.nav_gallery) {
-
+            ActionsFragment fragment = new ActionsFragment();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.frame,fragment);
+            fragmentTransaction.commit();
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
