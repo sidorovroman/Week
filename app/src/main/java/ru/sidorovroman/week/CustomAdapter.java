@@ -16,6 +16,7 @@
 
 package ru.sidorovroman.week;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,31 +26,40 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import ru.sidorovroman.week.activity.ActionActivity;
 import ru.sidorovroman.week.models.Action;
-import ru.sidorovroman.week.models.Scheduler;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
  */
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
-    private static final String TAG = "CustomAdapter";
+
+    private static final String LOG_TAG = CustomAdapter.class.getSimpleName();
 
     private List<Action> mDataSet;
-
-    // BEGIN_INCLUDE(recyclerViewSampleViewHolder)
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
+        private final List<Action> mActions;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v, List<Action> actions) {
             super(v);
-            // Define click listener for the ViewHolder's View.
+
+            mActions = actions;
+
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "Element " + getPosition() + " clicked.");
+                    String name = mActions.get(getLayoutPosition()).getName();
+                    Long id = mActions.get(getLayoutPosition()).getId();
+
+                    Intent intent = new Intent(v.getContext(), ActionActivity.class);
+                    intent.putExtra(ActionActivity.ACTION_ID_KEY, id);
+                    v.getContext().startActivity(intent);
+
+                    Log.d(LOG_TAG, "Element " + getLayoutPosition() + " clicked.:" + name);
                 }
             });
             textView = (TextView) v.findViewById(R.id.textView);
@@ -59,7 +69,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             return textView;
         }
     }
-    // END_INCLUDE(recyclerViewSampleViewHolder)
 
     /**
      * Initialize the dataset of the Adapter.
@@ -70,31 +79,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mDataSet = dataSet;
     }
 
-    // BEGIN_INCLUDE(recyclerViewOnCreateViewHolder)
-    // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        // Create a new view.
+
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.text_row_item, viewGroup, false);
 
-        return new ViewHolder(v);
+        return new ViewHolder(v, mDataSet);
     }
-    // END_INCLUDE(recyclerViewOnCreateViewHolder)
 
-    // BEGIN_INCLUDE(recyclerViewOnBindViewHolder)
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Log.d(TAG, "Element " + position + " set.");
-
-        // Get element from your dataset at this position and replace the contents of the view
-        // with that element
         viewHolder.getTextView().setText(mDataSet.get(position).getName());
     }
-    // END_INCLUDE(recyclerViewOnBindViewHolder)
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mDataSet.size();

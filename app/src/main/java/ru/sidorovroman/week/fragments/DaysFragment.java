@@ -24,16 +24,13 @@ import ru.sidorovroman.week.enums.WeekDay;
 public class DaysFragment extends Fragment {
 
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflate = inflater.inflate(R.layout.fr_days, container, false);
-        viewPager = (ViewPager) inflate.findViewById(R.id.viewpager);
+        ViewPager viewPager = (ViewPager) inflate.findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) inflate.findViewById(R.id.tabs);
+        TabLayout tabLayout = (TabLayout) inflate.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         FloatingActionButton fab = (FloatingActionButton) inflate.findViewById(R.id.fab);

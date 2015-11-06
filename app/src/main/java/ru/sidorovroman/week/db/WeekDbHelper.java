@@ -122,29 +122,7 @@ public class WeekDbHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Scheduler scheduler = new Scheduler();
-                scheduler.setId(Long.parseLong(cursor.getString(0)));
-
-                List<Integer> weekDaysList = new ArrayList<>();
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray(cursor.getString(1));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    try {
-                        weekDaysList.add(jsonArray.getInt(i));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                scheduler.setWeekDayIds(weekDaysList);
-                scheduler.setActionId(cursor.getLong(2));
-                scheduler.setTimeFrom(cursor.getLong(3));
-                scheduler.setTimeTo(cursor.getLong(4));
-                // Adding contact to list
+                Scheduler scheduler = getSchedulerFromCursor(cursor);
                 schedulerList.add(scheduler);
             } while (cursor.moveToNext());
         }
@@ -152,6 +130,47 @@ public class WeekDbHelper extends SQLiteOpenHelper {
         // return contact list
         return schedulerList;
     }
+
+    private Scheduler getSchedulerFromCursor(Cursor cursor) {
+        Scheduler scheduler = new Scheduler();
+        scheduler.setId(Long.parseLong(cursor.getString(0)));
+
+        List<Integer> weekDaysList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(cursor.getString(1));
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                weekDaysList.add(jsonArray.getInt(i));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        scheduler.setWeekDayIds(weekDaysList);
+        scheduler.setActionId(cursor.getLong(2));
+        scheduler.setTimeFrom(cursor.getLong(3));
+        scheduler.setTimeTo(cursor.getLong(4));
+
+        return scheduler;
+    }
+
+    public List<Scheduler> getSchedulerByActionId( Long id){
+        List<Scheduler> schedulerList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + SchedulerEntry.TABLE_NAME + " where " + SchedulerEntry.COLUMN_ACTION_ID + "='" + id + "'";
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Scheduler scheduler = getSchedulerFromCursor(cursor);
+                schedulerList.add(scheduler);
+            } while (cursor.moveToNext());
+        }
+
+        return schedulerList;
+    }
+
     public List<Action> getAllActions() {
         List<Action> actionList = new ArrayList<Action>();
         // Select All Query
@@ -163,30 +182,37 @@ public class WeekDbHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Action action = new Action();
-                action.setId(Integer.parseInt(cursor.getString(0)));
-                action.setName(cursor.getString(1));
-
-                List<Integer> categoryIdsList = new ArrayList<>();
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray(cursor.getString(2));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    try {
-                        categoryIdsList.add(jsonArray.getInt(i));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                actionList.add(action);
+                actionList.add(getActionFromCursor(cursor));
             } while (cursor.moveToNext());
         }
 
-        // return contact list
         return actionList;
+    }
+
+    private Action getActionFromCursor(Cursor cursor) {
+        Action action = new Action();
+        action.setId(Integer.parseInt(cursor.getString(0)));
+        action.setName(cursor.getString(1));
+
+        List<Integer> categoryIdsList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(cursor.getString(2));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                categoryIdsList.add(jsonArray.getInt(i));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        action.setCategoryIds(categoryIdsList);
+
+
+        return action;
+    }
+
+    public Action getActionById(Long id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + ActionEntry.TABLE_NAME + " where " + ActionEntry._ID + "='" + id + "'", null);
+        cursor.moveToFirst();
+        return getActionFromCursor(cursor);
     }
 }

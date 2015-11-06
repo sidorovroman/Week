@@ -1,8 +1,10 @@
 package ru.sidorovroman.week.activity;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -25,6 +28,8 @@ import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.enums.Category;
 import ru.sidorovroman.week.enums.WeekDay;
+import ru.sidorovroman.week.models.Action;
+import ru.sidorovroman.week.models.Scheduler;
 
 /**
  * Created by sidorovroman on 26.10.15.
@@ -32,16 +37,15 @@ import ru.sidorovroman.week.enums.WeekDay;
 public class ActionActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ActionActivity.class.getSimpleName();
+    public static final String ACTION_ID_KEY = "action_id_key";
     private EditText multiSelectionSpinner;
     private EditText days;
-    final List<Integer> selectedCategories =new ArrayList();
-    final List<Integer> selectedDays =new ArrayList();
+    private final List<Integer> selectedCategories = new ArrayList();
+    private final List<Integer> selectedDays = new ArrayList();
     private TimePickerDialog timePickerDialogFrom;
     private TimePickerDialog timePickerDialogTo;
     private TextView from;
     private TextView to;
-    private Button btnCancel;
-    private Button btnSave;
     private WeekDbHelper weekDbHelper;
     private EditText nameField;
     private int timeFromValue;
@@ -50,13 +54,33 @@ public class ActionActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-
+//        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_action);
 
+        weekDbHelper = new WeekDbHelper(this);
+
         multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
         days = (EditText) findViewById(R.id.days);
+        Button btnCancel = (Button) findViewById(R.id.btnCancel);
+        Button btnSave = (Button) findViewById(R.id.btnSave);
+        nameField = (EditText) findViewById(R.id.name);
+        from = (TextView) findViewById(R.id.from);
+        to = (TextView) findViewById(R.id.to);
+
+        initTimePicker();
+
+        long actionId = getIntent().getLongExtra(ACTION_ID_KEY,0);
+        if(actionId != 0){
+            Toast.makeText(this,"Изменение ", Toast.LENGTH_SHORT).show();
+            Action action = weekDbHelper.getActionById(actionId);
+            nameField.setText(action.getName());
+            List<Scheduler> schedulerList = weekDbHelper.getSchedulerByActionId(actionId);
+            //todo scheduler
+        }else{
+            Toast.makeText(this,"Создание ", Toast.LENGTH_SHORT).show();
+        }
+
 
         multiSelectionSpinner.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,16 +88,13 @@ public class ActionActivity extends AppCompatActivity {
                 openCategoriesDialog();
             }
         });
+
         days.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDaysDialog();
             }
         });
-        initTimePicker();
-
-        btnCancel = (Button) findViewById(R.id.btnCancel);
-        btnSave = (Button) findViewById(R.id.btnSave);
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,32 +110,27 @@ public class ActionActivity extends AppCompatActivity {
                 db.close();
                 finish();
             }
-
-
         });
+
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-        nameField = (EditText) findViewById(R.id.name);
-        from = (TextView) findViewById(R.id.from);
+
         from.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 timePickerDialogFrom.show(getFragmentManager(), "TimePickerDialogFrom");
             }
         });
-        to = (TextView) findViewById(R.id.to);
         to.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 timePickerDialogTo.show(getFragmentManager(), "TimePickerDialogTo");
             }
         });
-
-        weekDbHelper = new WeekDbHelper(this);
     }
 
     private void openDaysDialog() {

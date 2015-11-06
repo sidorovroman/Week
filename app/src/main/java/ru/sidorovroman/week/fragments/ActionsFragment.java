@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,25 +24,14 @@ import ru.sidorovroman.week.models.Action;
  * Created by sidorovroman on 01.11.15.
  */
 public class ActionsFragment extends Fragment {
-    private WeekDbHelper weekDbHelper;
-    private RecyclerView actionsList;
-    private static final int DATASET_COUNT = 60;
-    private CustomAdapter mAdapter;
-    protected RecyclerView.LayoutManager mLayoutManager;
 
+    protected RecyclerView.LayoutManager mLayoutManager;
+    private List<Action> allActions;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Initialize dataset, this data would usually come from a local content provider or
-        // remote server.
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
+        allActions = new WeekDbHelper(getActivity()).getAllActions();
     }
 
     @Override
@@ -50,13 +40,9 @@ public class ActionsFragment extends Fragment {
 
         mLayoutManager = new LinearLayoutManager(getActivity());
 
-        actionsList = (RecyclerView) inflate.findViewById(R.id.actionsList);
+        RecyclerView actionsList = (RecyclerView) inflate.findViewById(R.id.actionsList);
         actionsList.setHasFixedSize(true);
-
-        weekDbHelper = new WeekDbHelper(getActivity());
-        List<Action> allActions = weekDbHelper.getAllActions();
-        mAdapter = new CustomAdapter(allActions);
-
+        CustomAdapter mAdapter = new CustomAdapter(allActions);
         actionsList.setLayoutManager(mLayoutManager);
         actionsList.setAdapter(mAdapter);
 
