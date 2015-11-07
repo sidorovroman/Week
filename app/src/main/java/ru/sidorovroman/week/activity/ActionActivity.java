@@ -1,15 +1,10 @@
 package ru.sidorovroman.week.activity;
 
-import android.annotation.TargetApi;
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,14 +13,12 @@ import android.widget.Toast;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.Category;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
@@ -51,6 +44,7 @@ public class ActionActivity extends AppCompatActivity {
     private int timeFromValue;
     private int timeToValue;
     private AlertDialog dialog;
+    private long actionId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +64,21 @@ public class ActionActivity extends AppCompatActivity {
 
         initTimePicker();
 
-        long actionId = getIntent().getLongExtra(ACTION_ID_KEY,0);
+        actionId = getIntent().getLongExtra(ACTION_ID_KEY,0);
         if(actionId != 0){
             Toast.makeText(this,"Изменение ", Toast.LENGTH_SHORT).show();
             Action action = weekDbHelper.getActionById(actionId);
             nameField.setText(action.getName());
+            selectedCategories.addAll(action.getCategoryIds());
+
+            String text = "";
+
+            for (Integer dayIndex : selectedCategories) {
+                Category category = Category.getCategoryByIndex(dayIndex);
+                text += category.getLabel();
+            }
+
+            multiSelectionSpinner.setText(text);
             List<Scheduler> schedulerList = weekDbHelper.getSchedulerByActionId(actionId);
             //todo scheduler
         }else{
@@ -100,14 +104,18 @@ public class ActionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                SQLiteDatabase db = weekDbHelper.getWritableDatabase();
+                Action action = new Action(nameField.getText().toString(), selectedCategories);
+                if(actionId == 0){
+                    //create action
+                    actionId = weekDbHelper.addAction(action);
 
-                ContentValues cv = prepareActionEntries();
-                long actionId = db.insert(WeekDbHelper.ActionEntry.TABLE_NAME, null, cv);
-
-                cv = prepareSchedulerEntries(actionId);
-                db.insert(WeekDbHelper.SchedulerEntry.TABLE_NAME, null, cv);
-                db.close();
+                    Scheduler scheduler = new Scheduler(selectedDays,actionId,timeFromValue,timeToValue);
+                    weekDbHelper.addScheduler(scheduler);
+                } else {
+                    action.setId(actionId);
+                    // update action
+                    weekDbHelper.updateAction(action);
+                }
                 finish();
             }
         });
@@ -236,32 +244,6 @@ public class ActionActivity extends AppCompatActivity {
 
         dialog = builder.create();//AlertDialog dialog; create like this outside onClick
         dialog.show();
-    }
-
-    private ContentValues prepareSchedulerEntries(long actionId) {
-
-        // создаем объект для данных
-        ContentValues cv = new ContentValues();
-
-        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_WEEK_DAY_IDS, new JSONArray(selectedDays).toString());
-        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_ACTION_ID,actionId);
-        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_TIME_FROM,timeFromValue);
-        cv.put(WeekDbHelper.SchedulerEntry.COLUMN_TIME_TO,timeToValue);
-
-        return cv;
-    }
-
-    private ContentValues prepareActionEntries() {
-
-        String name = nameField.getText().toString();
-        JSONArray categoriesJsonArray = new JSONArray(selectedCategories);
-
-        // создаем объект для данных
-        ContentValues cv = new ContentValues();
-        cv.put(WeekDbHelper.ActionEntry.COLUMN_NAME, name);
-        cv.put(WeekDbHelper.ActionEntry.COLUMN_CATEGORY_IDS, categoriesJsonArray.toString());
-
-        return cv;
     }
 
     //todo можем ли мы использовать один timePicker для разных полей, используя tag?

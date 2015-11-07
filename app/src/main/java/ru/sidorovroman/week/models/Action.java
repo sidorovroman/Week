@@ -7,8 +7,16 @@ import java.util.List;
  */
 public class Action extends Model{
 
-    private List<Integer> categoryIds;
     private String name;
+    private List<Integer> categoryIds;
+
+    public Action() {
+    }
+
+    public Action(String name, List<Integer> categoryIds) {
+        this.name = name;
+        this.categoryIds = categoryIds;
+    }
 
     public List<Integer> getCategoryIds() {
         return categoryIds;

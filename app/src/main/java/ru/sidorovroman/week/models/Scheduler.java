@@ -9,8 +9,18 @@ public class Scheduler extends Model{
 
     private List<Integer> weekDayIds;
     private Long actionId;
-    private Long timeFrom;
-    private Long timeTo;
+    private int timeFrom;
+    private int timeTo;
+
+    public Scheduler() {
+    }
+
+    public Scheduler(List<Integer> weekDayIds, Long actionId, int timeFrom, int timeTo) {
+        this.weekDayIds = weekDayIds;
+        this.actionId = actionId;
+        this.timeFrom = timeFrom;
+        this.timeTo = timeTo;
+    }
 
     public List<Integer> getWeekDayIds() {
         return weekDayIds;
@@ -28,19 +38,19 @@ public class Scheduler extends Model{
         this.actionId = actionId;
     }
 
-    public Long getTimeFrom() {
+    public int getTimeFrom() {
         return timeFrom;
     }
 
-    public void setTimeFrom(Long timeFrom) {
+    public void setTimeFrom(int timeFrom) {
         this.timeFrom = timeFrom;
     }
 
-    public Long getTimeTo() {
+    public int getTimeTo() {
         return timeTo;
     }
 
-    public void setTimeTo(Long timeTo) {
+    public void setTimeTo(int timeTo) {
         this.timeTo = timeTo;
     }
 

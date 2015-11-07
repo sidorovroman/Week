@@ -19,8 +19,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private WeekDbHelper weekDbHelper;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +29,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         navigationShit(toolbar);
-
-        // создаем объект для создания и управления версиями БД
-        weekDbHelper = new WeekDbHelper(this);
     }
 
     private void navigationShit(Toolbar toolbar) {
@@ -54,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.frame,fragment);
         fragmentTransaction.commit();
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

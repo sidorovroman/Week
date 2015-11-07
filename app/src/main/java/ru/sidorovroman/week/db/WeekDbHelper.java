@@ -1,18 +1,19 @@
 package ru.sidorovroman.week.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.sidorovroman.week.db.entries.EntryAction;
+import ru.sidorovroman.week.db.entries.EntryScheduler;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.Scheduler;
@@ -20,61 +21,19 @@ import ru.sidorovroman.week.models.Scheduler;
 /**
  * Created by sidorovroman on 12.10.15.
  */
-public class WeekDbHelper extends SQLiteOpenHelper {
+public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "Week.db";
 
-    public WeekDbHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
 
     private static final String LOG_TAG = WeekDbHelper.class.getSimpleName();
     private static final String DB_NAME = "db_actions";
 
-
-    public static abstract class ActionEntry implements BaseColumns {
-
-        public static final String TABLE_NAME = "table_action";
-
-        public static final String COLUMN_NAME = "column_name";
-        public static final String COLUMN_CATEGORY_IDS = "column_category_ids";
+    public WeekDbHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
-    public static abstract class SchedulerEntry implements BaseColumns {
-
-        public static final String TABLE_NAME = "table_sheduler";
-
-        public static final String COLUMN_WEEK_DAY_IDS = "column_week_day_ids";
-        public static final String COLUMN_ACTION_ID = "column_action_id";
-        public static final String COLUMN_TIME_FROM = "column_time_from"; //time in minutes!!!
-        public static final String COLUMN_TIME_TO = "column_time_to"; //time in minutes!!!
-    }
-
-
-    private static final String TEXT_TYPE = " TEXT";
-    private static final String INTEGER_TYPE = " INTEGER";
-    private static final String COMMA_SEP = ",";
-
-    private static final String SQL_CREATE_ACTION_ENTRIES =
-            "CREATE TABLE " + ActionEntry.TABLE_NAME + " (" +
-                    ActionEntry._ID + " INTEGER PRIMARY KEY," +
-                    ActionEntry.COLUMN_NAME + TEXT_TYPE + COMMA_SEP +
-                    ActionEntry.COLUMN_CATEGORY_IDS + TEXT_TYPE +
-            " )";
-
-    private static final String SQL_CREATE_SHEDULER_ENTRIES =
-            "CREATE TABLE " + SchedulerEntry.TABLE_NAME + " (" +
-                    SchedulerEntry._ID + " INTEGER PRIMARY KEY," +
-                    SchedulerEntry.COLUMN_WEEK_DAY_IDS + TEXT_TYPE + COMMA_SEP +
-                    SchedulerEntry.COLUMN_ACTION_ID + INTEGER_TYPE + COMMA_SEP +
-                    SchedulerEntry.COLUMN_TIME_FROM + INTEGER_TYPE + COMMA_SEP +
-                    SchedulerEntry.COLUMN_TIME_TO + INTEGER_TYPE +
-                    " )";
-
-    private static final String SQL_DELETE_ACTION_ENTRIES = "DROP TABLE IF EXISTS " + ActionEntry.TABLE_NAME;
-    private static final String SQL_DELETE_SHEDULER_ENTRIES = "DROP TABLE IF EXISTS " + SchedulerEntry.TABLE_NAME;
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ACTION_ENTRIES);
@@ -95,9 +54,7 @@ public class WeekDbHelper extends SQLiteOpenHelper {
 
     public List<Scheduler> getSchedulerByWeekDay(WeekDay day) {
         List<Scheduler> filteredScheduler = new ArrayList<>();
-        List<Scheduler> allScheduler = null;
-        allScheduler = getAllScheduler();
-        for (Scheduler schedule : allScheduler) {
+        for (Scheduler schedule : getAllScheduler()) {
             List<Integer> weekDayIds = schedule.getWeekDayIds();
             for (Integer dayId : weekDayIds) {
                 if(dayId.equals(day.getIndex())){
@@ -110,9 +67,9 @@ public class WeekDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Scheduler> getAllScheduler() {
-        List<Scheduler> schedulerList = new ArrayList<Scheduler>();
+        List<Scheduler> schedulerList = new ArrayList<>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + SchedulerEntry.TABLE_NAME;
+        String selectQuery = "SELECT  * FROM " + EntryScheduler.TABLE_NAME;
 
 //        SQLiteDatabase db = this.getWritableDatabase();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -148,8 +105,8 @@ public class WeekDbHelper extends SQLiteOpenHelper {
 
         scheduler.setWeekDayIds(weekDaysList);
         scheduler.setActionId(cursor.getLong(2));
-        scheduler.setTimeFrom(cursor.getLong(3));
-        scheduler.setTimeTo(cursor.getLong(4));
+        scheduler.setTimeFrom(cursor.getInt(3));
+        scheduler.setTimeTo(cursor.getInt(4));
 
         return scheduler;
     }
@@ -158,7 +115,7 @@ public class WeekDbHelper extends SQLiteOpenHelper {
         List<Scheduler> schedulerList = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + SchedulerEntry.TABLE_NAME + " where " + SchedulerEntry.COLUMN_ACTION_ID + "='" + id + "'";
+        String selectQuery = "SELECT  * FROM " + EntryScheduler.TABLE_NAME + " where " + EntryScheduler.COLUMN_ACTION_ID + "='" + id + "'";
 
         Cursor cursor = db.rawQuery(selectQuery, null);
         if (cursor.moveToFirst()) {
@@ -172,9 +129,9 @@ public class WeekDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Action> getAllActions() {
-        List<Action> actionList = new ArrayList<Action>();
+        List<Action> actionList = new ArrayList<>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + ActionEntry.TABLE_NAME;
+        String selectQuery = "SELECT  * FROM " + EntryAction.TABLE_NAME;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -211,8 +168,61 @@ public class WeekDbHelper extends SQLiteOpenHelper {
 
     public Action getActionById(Long id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from " + ActionEntry.TABLE_NAME + " where " + ActionEntry._ID + "='" + id + "'", null);
+        Cursor cursor = db.rawQuery("select * from " + EntryAction.TABLE_NAME + " where " + EntryAction._ID + "='" + id + "'", null);
         cursor.moveToFirst();
         return getActionFromCursor(cursor);
     }
+
+    public long addAction(Action action) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        JSONArray categoriesJsonArray = new JSONArray(action.getCategoryIds());
+
+        // создаем объект для данных
+        ContentValues cv = new ContentValues();
+        cv.put(EntryAction.COLUMN_NAME, action.getName());
+        cv.put(EntryAction.COLUMN_CATEGORY_IDS, categoriesJsonArray.toString());
+
+        long actionId = db.insert(EntryAction.TABLE_NAME, null, cv);
+
+        db.close();
+
+        return actionId;
+    }
+
+
+    public void updateAction(Action action) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        JSONArray categoriesJsonArray = new JSONArray(action.getCategoryIds());
+
+        // создаем объект для данных
+        ContentValues cv = new ContentValues();
+        cv.put(EntryAction.COLUMN_NAME, action.getName());
+        cv.put(EntryAction.COLUMN_CATEGORY_IDS, categoriesJsonArray.toString());
+
+        int update = db.update(EntryAction.TABLE_NAME, cv, EntryAction._ID + "=" + action.getId(), null);
+
+        db.close();
+    }
+    
+    public long addScheduler(Scheduler scheduler) {
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        // создаем объект для данных
+        ContentValues cv = new ContentValues();
+
+        cv.put(EntryScheduler.COLUMN_WEEK_DAY_IDS, new JSONArray(scheduler.getWeekDayIds()).toString());
+        cv.put(EntryScheduler.COLUMN_ACTION_ID, scheduler.getActionId());
+        cv.put(EntryScheduler.COLUMN_TIME_FROM, scheduler.getTimeFrom());
+        cv.put(EntryScheduler.COLUMN_TIME_TO, scheduler.getTimeTo());
+
+        long schedulerId = db.insert(EntryScheduler.TABLE_NAME, null, cv);
+
+        db.close();
+
+        return schedulerId;
+    }
+
 }
