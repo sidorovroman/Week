@@ -64,9 +64,9 @@ public class ActionActivity extends AppCompatActivity {
 
         initTimePicker();
 
-        actionId = getIntent().getLongExtra(ACTION_ID_KEY,0);
-        if(actionId != 0){
-            Toast.makeText(this,"Изменение ", Toast.LENGTH_SHORT).show();
+        actionId = getIntent().getLongExtra(ACTION_ID_KEY, 0);
+        if (actionId != 0) {
+            Toast.makeText(this, "Изменение ", Toast.LENGTH_SHORT).show();
             Action action = weekDbHelper.getActionById(actionId);
             nameField.setText(action.getName());
             selectedCategories.addAll(action.getCategoryIds());
@@ -81,8 +81,8 @@ public class ActionActivity extends AppCompatActivity {
             multiSelectionSpinner.setText(text);
             List<Scheduler> schedulerList = weekDbHelper.getSchedulerByActionId(actionId);
             //todo scheduler
-        }else{
-            Toast.makeText(this,"Создание ", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Создание ", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -105,11 +105,11 @@ public class ActionActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Action action = new Action(nameField.getText().toString(), selectedCategories);
-                if(actionId == 0){
+                if (actionId == 0) {
                     //create action
                     actionId = weekDbHelper.addAction(action);
 
-                    Scheduler scheduler = new Scheduler(selectedDays,actionId,timeFromValue,timeToValue);
+                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromValue, timeToValue);
                     weekDbHelper.addScheduler(scheduler);
                 } else {
                     action.setId(actionId);
@@ -267,7 +267,7 @@ public class ActionActivity extends AppCompatActivity {
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        to.setText(""+hourOfDay + ": " + minute);
+                        to.setText("" + hourOfDay + ": " + minute);
                         timeToValue = hourOfDay * 60 + minute;
                     }
                 },

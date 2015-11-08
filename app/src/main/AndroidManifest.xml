@@ -10,6 +10,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".activity.MainActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -20,6 +21,7 @@
         </activity>
         <activity
             android:name=".activity.ActionActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>

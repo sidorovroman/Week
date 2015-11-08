@@ -5,16 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
 
 import java.util.List;
 
-import ru.sidorovroman.week.CustomAdapter;
+import ru.sidorovroman.week.MySimpleArrayAdapter;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.activity.ActionActivity;
 import ru.sidorovroman.week.db.WeekDbHelper;
@@ -25,7 +25,6 @@ import ru.sidorovroman.week.models.Action;
  */
 public class ActionsFragment extends Fragment {
 
-    protected RecyclerView.LayoutManager mLayoutManager;
     private List<Action> allActions;
 
     @Override
@@ -38,14 +37,21 @@ public class ActionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflate = inflater.inflate(R.layout.fr_actions, container, false);
 
-        mLayoutManager = new LinearLayoutManager(getActivity());
+        ListView actionsList = (ListView) inflate.findViewById(R.id.actionsList);
 
-        RecyclerView actionsList = (RecyclerView) inflate.findViewById(R.id.actionsList);
-        actionsList.setHasFixedSize(true);
-        CustomAdapter mAdapter = new CustomAdapter(allActions);
-        actionsList.setLayoutManager(mLayoutManager);
+        MySimpleArrayAdapter mAdapter = new MySimpleArrayAdapter(getActivity(), allActions);
         actionsList.setAdapter(mAdapter);
+        actionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Action action = allActions.get(position);
 
+                Intent intent = new Intent(getContext(), ActionActivity.class);
+                intent.putExtra(ActionActivity.ACTION_ID_KEY, action.getId());
+                startActivity(intent);
+
+            }
+        });
         FloatingActionButton fab = (FloatingActionButton) inflate.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
