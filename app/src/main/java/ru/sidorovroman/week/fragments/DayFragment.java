@@ -1,7 +1,5 @@
 package ru.sidorovroman.week.fragments;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,15 +12,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
 import java.util.List;
 
 import ru.sidorovroman.week.DrawView;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
-import ru.sidorovroman.week.models.Scheduler;
+import ru.sidorovroman.week.models.ActionTime;
 
 
 public class DayFragment extends Fragment{
@@ -72,9 +68,9 @@ public class DayFragment extends Fragment{
     private void readAll() {
         WeekDbHelper weekDbHelper = new WeekDbHelper(getActivity());
 
-        List<Scheduler> schedulerByWeekDay = weekDbHelper.getSchedulerByWeekDay(day);
+        List<ActionTime> schedulerByWeekDay = weekDbHelper.getActionTimesByWeekDay(day);
 
-        for (Scheduler s : schedulerByWeekDay) {
+        for (ActionTime s : schedulerByWeekDay) {
             Log.d(LOG_TAG,s.toString());
 
             TextView tv = new TextView(getActivity());

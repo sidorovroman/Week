@@ -11,4 +11,5 @@ public class EntryAction implements BaseColumns {
 
     public static final String COLUMN_NAME = "column_name";
     public static final String COLUMN_CATEGORY_IDS = "column_category_ids";
+    public static final String COLUMN_ACTION_TIMES = "column_action_times";
 }

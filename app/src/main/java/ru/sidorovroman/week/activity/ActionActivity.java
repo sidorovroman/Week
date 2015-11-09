@@ -22,7 +22,7 @@ import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.Category;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
-import ru.sidorovroman.week.models.Scheduler;
+import ru.sidorovroman.week.models.ActionTime;
 
 /**
  * Created by sidorovroman on 26.10.15.
@@ -45,6 +45,7 @@ public class ActionActivity extends AppCompatActivity {
     private int timeToValue;
     private AlertDialog dialog;
     private long actionId;
+    private List<ActionTime> actionTimes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +80,11 @@ public class ActionActivity extends AppCompatActivity {
             }
 
             multiSelectionSpinner.setText(text);
-            List<Scheduler> schedulerList = weekDbHelper.getSchedulerByActionId(actionId);
+            actionTimes = action.getActionTimeList();
             //todo scheduler
         } else {
             Toast.makeText(this, "Создание ", Toast.LENGTH_SHORT).show();
+            actionTimes = new ArrayList<>();
         }
 
 
@@ -104,13 +106,14 @@ public class ActionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Action action = new Action(nameField.getText().toString(), selectedCategories);
+                Action action = new Action(nameField.getText().toString(), selectedCategories, actionTimes);
+
                 if (actionId == 0) {
                     //create action
                     actionId = weekDbHelper.addAction(action);
 
-                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromValue, timeToValue);
-                    weekDbHelper.addScheduler(scheduler);
+//                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromValue, timeToValue);
+//                    weekDbHelper.addScheduler(scheduler);
                 } else {
                     action.setId(actionId);
                     // update action
