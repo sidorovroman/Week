@@ -1,91 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/main_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Название"
-        android:id="@+id/name" />
 
-
-    <EditText
-        android:id="@+id/mySpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/days"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <!--<ru.sidorovroman.week.MultiSelectionSpinner-->
-        <!--android:id="@+id/mySpinner"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="15dp"
-        android:paddingTop="15dp">
-        <TextView
-            android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <EditText
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="с"
-            android:layout_marginLeft="5dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:hint="Название"
+            android:id="@+id/name" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_marginLeft="5dp"
+
+        <EditText
+            android:id="@+id/mySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="__:__"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/from" />
-
-        <TextView
-            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/actionsTimeContainer"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="до"
-            android:layout_marginLeft="15dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="__:__"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/to"
-            android:layout_marginLeft="5dp" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Отмена"
+                android:id="@+id/btnCancel"
+                android:layout_gravity="bottom"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/btnSave"
+                android:layout_toStartOf="@+id/btnSave" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="сохранить"
+                android:id="@+id/btnSave"
+                android:layout_gravity="bottom"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Отмена"
-            android:id="@+id/btnCancel"
-            android:layout_gravity="bottom"
-            android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/btnSave"
-            android:layout_toStartOf="@+id/btnSave" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="сохранить"
-            android:id="@+id/btnSave"
-            android:layout_gravity="bottom"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-    </RelativeLayout>
-</LinearLayout>
+        android:id="@+id/fab"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add_white"
+        app:layout_anchorGravity="bottom|right|end"/>
+</android.support.design.widget.CoordinatorLayout>

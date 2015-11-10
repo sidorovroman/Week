@@ -1,13 +1,15 @@
 package ru.sidorovroman.week.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
@@ -18,6 +20,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.components.ActionTimeView;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.Category;
 import ru.sidorovroman.week.enums.WeekDay;
@@ -32,20 +35,21 @@ public class ActionActivity extends AppCompatActivity {
     private static final String LOG_TAG = ActionActivity.class.getSimpleName();
     public static final String ACTION_ID_KEY = "action_id_key";
     private EditText multiSelectionSpinner;
-    private EditText days;
     private final List<Integer> selectedCategories = new ArrayList();
-    private final List<Integer> selectedDays = new ArrayList();
+    private List<Integer> selectedDaysTemp;
     private TimePickerDialog timePickerDialogFrom;
     private TimePickerDialog timePickerDialogTo;
-    private TextView from;
-    private TextView to;
+
     private WeekDbHelper weekDbHelper;
     private EditText nameField;
-    private int timeFromValue;
-    private int timeToValue;
+    private LinearLayout actionsTimeContainer;
+
+
     private AlertDialog dialog;
     private long actionId;
     private List<ActionTime> actionTimes;
+    private int timeFromTemp;
+    private int timeToTemp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +60,10 @@ public class ActionActivity extends AppCompatActivity {
         weekDbHelper = new WeekDbHelper(this);
 
         multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
-        days = (EditText) findViewById(R.id.days);
         Button btnCancel = (Button) findViewById(R.id.btnCancel);
         Button btnSave = (Button) findViewById(R.id.btnSave);
         nameField = (EditText) findViewById(R.id.name);
-        from = (TextView) findViewById(R.id.from);
-        to = (TextView) findViewById(R.id.to);
+        actionsTimeContainer = (LinearLayout) findViewById(R.id.actionsTimeContainer);
 
         initTimePicker();
 
@@ -95,12 +97,6 @@ public class ActionActivity extends AppCompatActivity {
             }
         });
 
-        days.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDaysDialog();
-            }
-        });
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +108,7 @@ public class ActionActivity extends AppCompatActivity {
                     //create action
                     actionId = weekDbHelper.addAction(action);
 
-//                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromValue, timeToValue);
+//                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromTemp, timeToTemp);
 //                    weekDbHelper.addScheduler(scheduler);
                 } else {
                     action.setId(actionId);
@@ -130,30 +126,28 @@ public class ActionActivity extends AppCompatActivity {
             }
         });
 
-        from.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                timePickerDialogFrom.show(getFragmentManager(), "TimePickerDialogFrom");
-            }
-        });
-        to.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timePickerDialogTo.show(getFragmentManager(), "TimePickerDialogTo");
+                openDaysDialogNew();
             }
         });
     }
 
-    private void openDaysDialog() {
+    private void openDaysDialogNew() {
+        final Context context = this;
         WeekDay[] values = WeekDay.values();
         CharSequence[] items = new CharSequence[values.length];
         for (int i = 0; i < values.length; i++) {
             items[i] = values[i].getLabel();
         }
         boolean[] checkedItems = new boolean[values.length];
-        for (Integer catIndex : selectedDays) {
-            checkedItems[catIndex] = true;
-        }
+//        for (Integer catIndex : selectedDays) {
+//            checkedItems[catIndex] = true;
+//        }
+
+        selectedDaysTemp = new ArrayList<>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select The Difficulty Level");
@@ -164,9 +158,9 @@ public class ActionActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int indexSelected,
                                         boolean isChecked) {
                         if (isChecked) {
-                            selectedDays.add(indexSelected);
-                        } else if (selectedDays.contains(indexSelected)) {
-                            selectedDays.remove(Integer.valueOf(indexSelected));
+                            selectedDaysTemp.add(indexSelected);
+                        } else if (selectedDaysTemp.contains(indexSelected)) {
+                            selectedDaysTemp.remove(Integer.valueOf(indexSelected));
                         }
                     }
                 })
@@ -174,19 +168,23 @@ public class ActionActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
 
-                        String text = "";
-                        for (Integer dayIndex : selectedDays) {
-                            WeekDay day = WeekDay.getDayByIndex(dayIndex);
-                            text += day.getLabel();
-                        }
+                        Toast.makeText(context,"days:" + selectedDaysTemp.toString(),Toast.LENGTH_SHORT).show();
+                        timePickerDialogFrom.show(getFragmentManager(), "TimePickerDialogFrom");
 
-                        days.setText(text);
+//                        String text = "";
+//                        for (Integer dayIndex : selectedDaysTemp) {
+//                            WeekDay day = WeekDay.getDayByIndex(dayIndex);
+//                            text += day.getLabel();
+//                        }
+//
+//                        days.setText(text);
 
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
+                        selectedDaysTemp.clear();
                         //  Your code when user clicked on Cancel
 
                     }
@@ -195,6 +193,7 @@ public class ActionActivity extends AppCompatActivity {
         dialog = builder.create();//AlertDialog dialog; create like this outside onClick
         dialog.show();
     }
+
 
     private void openCategoriesDialog() {
         Category[] values = Category.values();
@@ -251,14 +250,17 @@ public class ActionActivity extends AppCompatActivity {
 
     //todo можем ли мы использовать один timePicker для разных полей, используя tag?
     private void initTimePicker() {
+        final Context context = this;
         Calendar now = Calendar.getInstance();
 
         timePickerDialogFrom = TimePickerDialog.newInstance(
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        from.setText("" + hourOfDay + ": " + minute);
-                        timeFromValue = hourOfDay * 60 + minute;
+                        timeFromTemp = hourOfDay * 60 + minute;
+                        timePickerDialogTo.show(getFragmentManager(), "TimePickerDialogTo");
+                        Toast.makeText(context, "from:" + hourOfDay + ":" + minute, Toast.LENGTH_SHORT).show();
+
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
@@ -270,13 +272,35 @@ public class ActionActivity extends AppCompatActivity {
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        to.setText("" + hourOfDay + ": " + minute);
-                        timeToValue = hourOfDay * 60 + minute;
+                        timeToTemp = hourOfDay * 60 + minute;
+                        Toast.makeText(context,"To:" + hourOfDay + ":" + minute,Toast.LENGTH_SHORT).show();
+                        addActionTimeComponent();
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
                 now.get(Calendar.MINUTE),
                 true
         );
+    }
+
+    private void addActionTimeComponent() {
+        ActionTime actionTime = new ActionTime(selectedDaysTemp,timeFromTemp,timeToTemp);
+        ActionTimeView actionTimeView = new ActionTimeView(this,actionTime, getFragmentManager(), new ru.sidorovroman.week.components.ActionTimeView.IActionTime() {
+            @Override
+            public void onSetTimeTo(int timeToValue) {
+
+            }
+            @Override
+            public void onSetTimeFrom(int timeFromValue) {
+
+            }
+
+            @Override
+            public void onSetDays(List<Integer> selectedDays) {
+
+            }
+        });
+
+        actionsTimeContainer.addView(actionTimeView);
     }
 }
