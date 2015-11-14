@@ -9,7 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
@@ -83,7 +85,9 @@ public class ActionActivity extends AppCompatActivity {
 
             multiSelectionSpinner.setText(text);
             actionTimes = action.getActionTimeList();
-            //todo scheduler
+            for (ActionTime actionTime : actionTimes) {
+                addActionTimeComponentView(actionTime);
+            }
         } else {
             Toast.makeText(this, "Создание ", Toast.LENGTH_SHORT).show();
             actionTimes = new ArrayList<>();
@@ -107,12 +111,9 @@ public class ActionActivity extends AppCompatActivity {
                 if (actionId == 0) {
                     //create action
                     actionId = weekDbHelper.addAction(action);
-
-//                    Scheduler scheduler = new Scheduler(selectedDays, actionId, timeFromTemp, timeToTemp);
-//                    weekDbHelper.addScheduler(scheduler);
                 } else {
-                    action.setId(actionId);
                     // update action
+                    action.setId(actionId);
                     weekDbHelper.updateAction(action);
                 }
                 finish();
@@ -274,7 +275,7 @@ public class ActionActivity extends AppCompatActivity {
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
                         timeToTemp = hourOfDay * 60 + minute;
                         Toast.makeText(context,"To:" + hourOfDay + ":" + minute,Toast.LENGTH_SHORT).show();
-                        addActionTimeComponent();
+                        addActionTime();
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
@@ -283,8 +284,14 @@ public class ActionActivity extends AppCompatActivity {
         );
     }
 
-    private void addActionTimeComponent() {
+    private void addActionTime() {
         ActionTime actionTime = new ActionTime(selectedDaysTemp,timeFromTemp,timeToTemp);
+        actionTimes.add(actionTime);
+
+        addActionTimeComponentView(actionTime);
+    }
+
+    private void addActionTimeComponentView(ActionTime actionTime) {
         ActionTimeView actionTimeView = new ActionTimeView(this,actionTime, getFragmentManager(), new ru.sidorovroman.week.components.ActionTimeView.IActionTime() {
             @Override
             public void onSetTimeTo(int timeToValue) {
@@ -298,6 +305,11 @@ public class ActionActivity extends AppCompatActivity {
             @Override
             public void onSetDays(List<Integer> selectedDays) {
 
+            }
+
+            @Override
+            public void onDelete() {
+                Toast.makeText(ActionActivity.this,"delete",Toast.LENGTH_SHORT).show();
             }
         });
 

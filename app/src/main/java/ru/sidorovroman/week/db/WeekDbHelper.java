@@ -6,19 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import ru.sidorovroman.week.JsonHelper;
 import ru.sidorovroman.week.db.entries.EntryAction;
-import ru.sidorovroman.week.db.entries.EntryScheduler;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.ActionTime;
@@ -29,7 +24,7 @@ import ru.sidorovroman.week.models.ActionTime;
 public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "Week.db";
 
 
@@ -94,33 +89,15 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
         action.setId(Integer.parseInt(cursor.getString(0)));
         action.setName(cursor.getString(1));
 
-        try {
-            List<Integer> categoryIdsList = new ArrayList<>();
+        String categoryIdsJsonString = cursor.getString(2);
+        Type listType = new TypeToken<List<Integer>>(){}.getType();
+        List<Integer> categoryIdsList = new Gson().fromJson(categoryIdsJsonString, listType);
+        action.setCategoryIds(categoryIdsList);
 
-            JSONArray jsonArray = new JSONArray(cursor.getString(2));
-            for (int i = 0; i < jsonArray.length(); i++) {
-                categoryIdsList.add(jsonArray.getInt(i));
-            }
-            action.setCategoryIds(categoryIdsList);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            List<ActionTime> actionTimes = new ArrayList<>();
-
-            JSONArray jsonArray = new JSONArray(cursor.getString(3));
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                actionTimes.add((ActionTime) JsonHelper.fromJson(jsonObject));
-            }
-            action.setActionTimeList(actionTimes);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        String actionTimesJsonString = cursor.getString(3);
+        Type actionTimesListType = new TypeToken<List<ActionTime>>(){}.getType();
+        List<ActionTime> actionTimes = new Gson().fromJson(actionTimesJsonString, actionTimesListType);
+        action.setActionTimeList(actionTimes);
 
         return action;
     }
@@ -152,14 +129,14 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
     private ContentValues actionToCV(Action action) {
 
-        JSONArray categoriesJsonArray = new JSONArray(action.getCategoryIds());
-        JSONArray actionTimesJsonArray = new JSONArray(action.getActionTimeList());
+        String categoryIdsJsonString = new Gson().toJson(action.getCategoryIds());
+        String acitonTimeListJsonString = new Gson().toJson(action.getActionTimeList());
 
         // создаем объект для данных
         ContentValues cv = new ContentValues();
         cv.put(EntryAction.COLUMN_NAME, action.getName());
-        cv.put(EntryAction.COLUMN_CATEGORY_IDS, categoriesJsonArray.toString());
-        cv.put(EntryAction.COLUMN_ACTION_TIMES, actionTimesJsonArray.toString());
+        cv.put(EntryAction.COLUMN_CATEGORY_IDS, categoryIdsJsonString);
+        cv.put(EntryAction.COLUMN_ACTION_TIMES, acitonTimeListJsonString);
 
         return cv;
     }

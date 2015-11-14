@@ -16,7 +16,7 @@ public interface Queries {
             "CREATE TABLE " + EntryAction.TABLE_NAME + " (" +
                     EntryAction._ID + " INTEGER PRIMARY KEY," +
                     EntryAction.COLUMN_NAME + TEXT_TYPE + COMMA_SEP +
-                    EntryAction.COLUMN_CATEGORY_IDS + TEXT_TYPE +
+                    EntryAction.COLUMN_CATEGORY_IDS + TEXT_TYPE + COMMA_SEP +
                     EntryAction.COLUMN_ACTION_TIMES + TEXT_TYPE +
                     " )";
 

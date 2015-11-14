@@ -9,12 +9,14 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.ViewPagerAdapter;
 import ru.sidorovroman.week.activity.ActionActivity;
+import ru.sidorovroman.week.activity.ActionsActivity;
 import ru.sidorovroman.week.enums.WeekDay;
 
 /**
@@ -36,11 +38,20 @@ public class DaysFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(), ActionActivity.class));
+                startActivityForResult(new Intent(getContext(), ActionsActivity.class), 1);
             }
         });
 
         return inflate;
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) return;
+
+        Long actionId = data.getLongExtra(ActionsFragment.ACTIVITY_ID_KEY, 0);
+        Toast.makeText(getActivity(), "Обратно:" + actionId, Toast.LENGTH_SHORT).show();
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -52,10 +63,15 @@ public class DaysFragment extends Fragment {
 
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
-        //Sunday, day=1. Saturday, day=7.
-        int tabIndex = day - 1;
-        if(tabIndex == 0)
-            tabIndex = 7;
+
+        // Sunday = 1. Saturday = 7; tabIndex monday = 0, sunday = 6
+        // that's why -2
+
+        int tabIndex = day - 2;
+
+        if(tabIndex == -1) // this is sunday
+            tabIndex = 6;  // this tab index for sunday
+
         viewPager.setCurrentItem(tabIndex);
     }
 

@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_day" android:icon="@android:drawable/ic_menu_camera"
+        <item android:id="@+id/nav_day" android:icon="@drawable/ic_day_24dp"
             android:title="Твой День" />
-        <item android:id="@+id/nav_week" android:icon="@android:drawable/ic_menu_gallery"
+        <item android:id="@+id/nav_week" android:icon="@drawable/ic_week_24dp"
             android:title="Твоя Неделя" />
-        <item android:id="@+id/nav_actions" android:icon="@android:drawable/ic_menu_slideshow"
+        <item android:id="@+id/nav_actions" android:icon="@drawable/ic_action_24dp"
             android:title="Твои Дела" />
     </group>
 

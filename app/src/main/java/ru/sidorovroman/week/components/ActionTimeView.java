@@ -7,6 +7,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +36,7 @@ public class ActionTimeView extends LinearLayout {
         void onSetTimeTo(int timeToValue);
         void onSetTimeFrom(int timeFromValue);
         void onSetDays(List<Integer> selectedDays);
+        void onDelete();
     }
 
     private final List<Integer> selectedDays = new ArrayList();
@@ -55,7 +58,15 @@ public class ActionTimeView extends LinearLayout {
         days = (EditText) findViewById(R.id.days);
         from = (TextView) findViewById(R.id.from);
         to = (TextView) findViewById(R.id.to);
-
+        ImageView btnClear = (ImageButton) findViewById(R.id.btnClear);
+        btnClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onDelete();
+                }
+            }
+        });
         String text = "";
         for (Integer dayIndex : actionTime.getWeekDayIds()) {
             WeekDay day = WeekDay.getDayByIndex(dayIndex);

@@ -25,11 +25,29 @@ import ru.sidorovroman.week.models.Action;
  */
 public class ActionsFragment extends Fragment {
 
+    private static final String FRAGMENT_EXTRA_KEY = "fragment_extra_key";
+    public static final String ACTIVITY_ID_KEY = "activity_id_key";
     private List<Action> allActions;
 
+    private boolean listForReturnActionId = false;
+
+    public static Fragment newInstance(boolean returnId){
+        ActionsFragment actionsFragment = new ActionsFragment();
+
+        Bundle args = new Bundle();
+        args.putBoolean(FRAGMENT_EXTRA_KEY, returnId);
+        actionsFragment.setArguments(args);
+
+        return actionsFragment;
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Bundle arguments = getArguments();
+        if(arguments != null) {
+            listForReturnActionId = arguments.getBoolean(FRAGMENT_EXTRA_KEY, false);
+        }
         allActions = new WeekDbHelper(getActivity()).getAllActions();
     }
 
@@ -46,10 +64,16 @@ public class ActionsFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Action action = allActions.get(position);
 
-                Intent intent = new Intent(getContext(), ActionActivity.class);
-                intent.putExtra(ActionActivity.ACTION_ID_KEY, action.getId());
-                startActivity(intent);
-
+                if(listForReturnActionId){
+                    Intent intent = new Intent();
+                    intent.putExtra(ACTIVITY_ID_KEY, action.getId());
+                    getActivity().setResult(getActivity().RESULT_OK, intent);
+                    getActivity().finish();
+                } else {
+                    Intent intent = new Intent(getContext(), ActionActivity.class);
+                    intent.putExtra(ActionActivity.ACTION_ID_KEY, action.getId());
+                    startActivity(intent);
+                }
             }
         });
         FloatingActionButton fab = (FloatingActionButton) inflate.findViewById(R.id.fab);
