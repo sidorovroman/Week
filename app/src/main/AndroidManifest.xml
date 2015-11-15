@@ -20,11 +20,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ActionActivity"
+            android:name=".activity.ActionDetailActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".activity.ActionsActivity"
+            android:name=".activity.ActionsListActivity"
             android:screenOrientation="portrait">
         </activity>
     </application>

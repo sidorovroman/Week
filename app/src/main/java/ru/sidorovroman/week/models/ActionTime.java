@@ -5,7 +5,8 @@ import java.util.List;
 /**
  * Created by sidorovroman on 31.10.15.
  */
-public class ActionTime extends Model{
+public class ActionTime extends PseudoModel{
+
 
     private List<Integer> weekDayIds;
     private int timeFrom;
@@ -46,6 +47,6 @@ public class ActionTime extends Model{
 
     @Override
     public String toString() {
-        return "_id: " + getId() + " weekDayIds: " + weekDayIds + " timeFrom: " + timeFrom + " timeTo: " + timeTo;
+        return "pseudoId : " + getPseudoId() + " weekDayIds: " + weekDayIds + " timeFrom: " + timeFrom + " timeTo: " + timeTo;
     }
 }

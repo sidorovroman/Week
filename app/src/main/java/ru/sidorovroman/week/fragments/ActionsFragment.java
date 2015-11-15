@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import ru.sidorovroman.week.MySimpleArrayAdapter;
 import ru.sidorovroman.week.R;
-import ru.sidorovroman.week.activity.ActionActivity;
+import ru.sidorovroman.week.activity.ActionDetailActivity;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.models.Action;
 
@@ -27,9 +28,11 @@ public class ActionsFragment extends Fragment {
 
     private static final String FRAGMENT_EXTRA_KEY = "fragment_extra_key";
     public static final String ACTIVITY_ID_KEY = "activity_id_key";
+    private static final String LOG_TAG = ActionsFragment.class.getSimpleName();
     private List<Action> allActions;
 
     private boolean listForReturnActionId = false;
+    private ListView actionsList;
 
     public static Fragment newInstance(boolean returnId){
         ActionsFragment actionsFragment = new ActionsFragment();
@@ -48,15 +51,12 @@ public class ActionsFragment extends Fragment {
         if(arguments != null) {
             listForReturnActionId = arguments.getBoolean(FRAGMENT_EXTRA_KEY, false);
         }
-        allActions = new WeekDbHelper(getActivity()).getAllActions();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View inflate = inflater.inflate(R.layout.fr_actions, container, false);
-
-        ListView actionsList = (ListView) inflate.findViewById(R.id.actionsList);
-
+    public void onResume() {
+        super.onResume();
+        allActions = new WeekDbHelper(getActivity()).getAllActions();
         MySimpleArrayAdapter mAdapter = new MySimpleArrayAdapter(getActivity(), allActions);
         actionsList.setAdapter(mAdapter);
         actionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -70,17 +70,27 @@ public class ActionsFragment extends Fragment {
                     getActivity().setResult(getActivity().RESULT_OK, intent);
                     getActivity().finish();
                 } else {
-                    Intent intent = new Intent(getContext(), ActionActivity.class);
-                    intent.putExtra(ActionActivity.ACTION_ID_KEY, action.getId());
+                    Intent intent = new Intent(getContext(), ActionDetailActivity.class);
+                    intent.putExtra(ActionDetailActivity.ACTION_ID_KEY, action.getId());
                     startActivity(intent);
                 }
             }
         });
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View inflate = inflater.inflate(R.layout.fr_actions, container, false);
+
+        actionsList = (ListView) inflate.findViewById(R.id.actionsList);
+
+
         FloatingActionButton fab = (FloatingActionButton) inflate.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(), ActionActivity.class));
+                startActivity(new Intent(getContext(), ActionDetailActivity.class));
             }
         });
 

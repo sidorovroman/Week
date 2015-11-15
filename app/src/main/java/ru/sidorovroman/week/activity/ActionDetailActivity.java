@@ -9,9 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
@@ -32,9 +30,9 @@ import ru.sidorovroman.week.models.ActionTime;
 /**
  * Created by sidorovroman on 26.10.15.
  */
-public class ActionActivity extends AppCompatActivity {
+public class ActionDetailActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = ActionActivity.class.getSimpleName();
+    private static final String LOG_TAG = ActionDetailActivity.class.getSimpleName();
     public static final String ACTION_ID_KEY = "action_id_key";
     private EditText multiSelectionSpinner;
     private final List<Integer> selectedCategories = new ArrayList();
@@ -292,27 +290,46 @@ public class ActionActivity extends AppCompatActivity {
     }
 
     private void addActionTimeComponentView(ActionTime actionTime) {
-        ActionTimeView actionTimeView = new ActionTimeView(this,actionTime, getFragmentManager(), new ru.sidorovroman.week.components.ActionTimeView.IActionTime() {
-            @Override
-            public void onSetTimeTo(int timeToValue) {
+        ActionTimeView actionTimeView = new ActionTimeView(this, actionTime, getFragmentManager(), new ru.sidorovroman.week.components.ActionTimeView.IActionTime() {
 
-            }
             @Override
-            public void onSetTimeFrom(int timeFromValue) {
-
+            public void onSetTimeTo(int timeToValue, int pseudoId) {
+                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
+                getActionTimeByPseudoId(pseudoId).setTimeTo(timeToValue);
             }
 
             @Override
-            public void onSetDays(List<Integer> selectedDays) {
+            public void onSetTimeFrom(int timeFromValue, int pseudoId) {
+                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
+                getActionTimeByPseudoId(pseudoId).setTimeFrom(timeFromValue);
 
             }
 
             @Override
-            public void onDelete() {
-                Toast.makeText(ActionActivity.this,"delete",Toast.LENGTH_SHORT).show();
+            public void onSetDays(List<Integer> selectedDays, int pseudoId) {
+                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
+                getActionTimeByPseudoId(pseudoId).setWeekDayIds(selectedDays);
+
+            }
+
+            @Override
+            public void onDelete(int pseudoId) {
+                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
+                actionTimes.remove(getActionTimeByPseudoId(pseudoId));
+
             }
         });
 
         actionsTimeContainer.addView(actionTimeView);
+    }
+
+    private ActionTime getActionTimeByPseudoId(int pseudoId){
+        for (ActionTime actionTime : actionTimes) {
+            if(actionTime.getPseudoId() == pseudoId){
+                return actionTime;
+            }
+        }
+
+        return null;
     }
 }

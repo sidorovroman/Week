@@ -15,8 +15,7 @@ import java.util.Calendar;
 
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.ViewPagerAdapter;
-import ru.sidorovroman.week.activity.ActionActivity;
-import ru.sidorovroman.week.activity.ActionsActivity;
+import ru.sidorovroman.week.activity.ActionsListActivity;
 import ru.sidorovroman.week.enums.WeekDay;
 
 /**
@@ -38,7 +37,7 @@ public class DaysFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(getContext(), ActionsActivity.class), 1);
+                startActivityForResult(new Intent(getContext(), ActionsListActivity.class), 1);
             }
         });
 

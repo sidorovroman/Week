@@ -9,7 +9,7 @@ import ru.sidorovroman.week.fragments.ActionsFragment;
 /**
  * Created by sidorovroman on 26.10.15.
  */
-public class ActionsActivity extends AppCompatActivity {
+public class ActionsListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

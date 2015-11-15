@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,12 +32,13 @@ public class ActionTimeView extends LinearLayout {
 
     private final IActionTime mListener;
     private final ActionTime actionTime;
+    private final ActionTimeView component;
 
     public interface IActionTime{
-        void onSetTimeTo(int timeToValue);
-        void onSetTimeFrom(int timeFromValue);
-        void onSetDays(List<Integer> selectedDays);
-        void onDelete();
+        void onSetTimeTo(int timeToValue,int pseudoId);
+        void onSetTimeFrom(int timeFromValue,int pseudoId);
+        void onSetDays(List<Integer> selectedDays,int pseudoId);
+        void onDelete(int pseudoId);
     }
 
     private final List<Integer> selectedDays = new ArrayList();
@@ -49,10 +51,11 @@ public class ActionTimeView extends LinearLayout {
     private TextView from;
     private TextView to;
 
-    public ActionTimeView(Context context, ActionTime actionTime, final FragmentManager fragmentManager, IActionTime listener) {
+    public ActionTimeView(Context context, final ActionTime actionTime, final FragmentManager fragmentManager, IActionTime listener) {
         super(context);
         this.mListener = listener;
         this.actionTime = actionTime;
+        this.component = this;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.component_action_time, this, true);
         days = (EditText) findViewById(R.id.days);
@@ -63,7 +66,8 @@ public class ActionTimeView extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onDelete();
+                    mListener.onDelete(actionTime.getPseudoId());
+                    ((ViewManager)component.getParent()).removeView(component);
                 }
             }
         });
@@ -139,7 +143,7 @@ public class ActionTimeView extends LinearLayout {
                         days.setText(text);
 
                         if (mListener != null) {
-                            mListener.onSetDays(selectedDays);
+                            mListener.onSetDays(selectedDays,actionTime.getPseudoId());
                         }
 
                     }
@@ -165,7 +169,7 @@ public class ActionTimeView extends LinearLayout {
                         from.setText("" + hourOfDay + ": " + minute);
                         timeFromValue = hourOfDay * 60 + minute;
                         if (mListener != null) {
-                            mListener.onSetTimeFrom(timeFromValue);
+                            mListener.onSetTimeFrom(timeFromValue,actionTime.getPseudoId());
                         }
                     }
                 },
@@ -181,7 +185,7 @@ public class ActionTimeView extends LinearLayout {
                         to.setText("" + hourOfDay + ": " + minute);
                         timeToValue = hourOfDay * 60 + minute;
                         if (mListener != null) {
-                            mListener.onSetTimeTo(timeToValue);
+                            mListener.onSetTimeTo(timeToValue,actionTime.getPseudoId());
                         }
                     }
                 },
