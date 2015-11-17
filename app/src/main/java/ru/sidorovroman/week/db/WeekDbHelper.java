@@ -140,4 +140,14 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
         return cv;
     }
+
+    public boolean removeAction(Long id) {
+        return getWritableDatabase().delete(EntryAction.TABLE_NAME,EntryAction._ID + "=" + id, null) > 0;
+    }
+
+    public void addActionTime(long actionId, ActionTime actionTime) {
+        Action action = getActionById(actionId);
+        action.getActionTimeList().add(actionTime);
+        updateAction(action);
+    }
 }

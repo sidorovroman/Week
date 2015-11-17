@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,15 +55,13 @@ public class ActionDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_action);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         weekDbHelper = new WeekDbHelper(this);
 
         multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
-        Button btnCancel = (Button) findViewById(R.id.btnCancel);
-        Button btnSave = (Button) findViewById(R.id.btnSave);
         nameField = (EditText) findViewById(R.id.name);
         actionsTimeContainer = (LinearLayout) findViewById(R.id.actionsTimeContainer);
 
@@ -99,11 +99,31 @@ public class ActionDetailActivity extends AppCompatActivity {
             }
         });
 
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                openDaysDialogNew();
+            }
+        });
+    }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.action_detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_save:
                 Action action = new Action(nameField.getText().toString(), selectedCategories, actionTimes);
 
                 if (actionId == 0) {
@@ -115,25 +135,11 @@ public class ActionDetailActivity extends AppCompatActivity {
                     weekDbHelper.updateAction(action);
                 }
                 finish();
-            }
-        });
-
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDaysDialogNew();
-            }
-        });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
-
     private void openDaysDialogNew() {
         final Context context = this;
         WeekDay[] values = WeekDay.values();
