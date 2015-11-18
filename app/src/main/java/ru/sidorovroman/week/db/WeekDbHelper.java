@@ -50,20 +50,20 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public List<ActionTime> getActionTimesByWeekDay(WeekDay day) {
-        List<ActionTime> actionTimesList = new ArrayList<>();
+    public List<Action> getActionsByWeekDay(WeekDay day) {
+        List<Action> actionsList = new ArrayList<>();
 
         for (Action action : getAllActions()) {
             for (ActionTime actionTime : action.getActionTimeList()) {
                 for (Integer weekDayId : actionTime.getWeekDayIds()) {
                     if(weekDayId.equals(day.getIndex())){
-                        actionTimesList.add(actionTime);
+                        actionsList.add(action);
                     }
                 }
             }
         }
 
-        return actionTimesList;
+        return actionsList;
     }
     
     public List<Action> getAllActions() {

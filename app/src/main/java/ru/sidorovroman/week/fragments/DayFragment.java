@@ -8,17 +8,17 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.List;
 
+import ru.sidorovroman.week.ActionAdapter;
 import ru.sidorovroman.week.DrawView;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
-import ru.sidorovroman.week.models.ActionTime;
+import ru.sidorovroman.week.models.Action;
 
 
 public class DayFragment extends Fragment{
@@ -26,7 +26,7 @@ public class DayFragment extends Fragment{
     private static final String LOG_TAG = DayFragment.class.getSimpleName();
     private WeekDay day;
     private RelativeLayout timeLineContainer;
-    private LinearLayout scheduler;
+    private ListView scheduler;
 
     public DayFragment( ) {
     }
@@ -49,7 +49,7 @@ public class DayFragment extends Fragment{
         View inflate = inflater.inflate(R.layout.fr_day, container, false);
 
         timeLineContainer = (RelativeLayout) inflate.findViewById(R.id.timeline);
-        scheduler = (LinearLayout) inflate.findViewById(R.id.scheduler);
+        scheduler = (ListView) inflate.findViewById(R.id.scheduler);
 
         DrawView drawView = new DrawView(getActivity(), getScreenWidth());
         timeLineContainer.addView(drawView);
@@ -68,17 +68,9 @@ public class DayFragment extends Fragment{
     private void readAll() {
         WeekDbHelper weekDbHelper = new WeekDbHelper(getActivity());
 
-        List<ActionTime> schedulerByWeekDay = weekDbHelper.getActionTimesByWeekDay(day);
+        List<Action> actions = weekDbHelper.getActionsByWeekDay(day);
 
-        for (ActionTime s : schedulerByWeekDay) {
-            Log.d(LOG_TAG,s.toString());
-
-            TextView tv = new TextView(getActivity());
-            tv.setText(s.toString());
-            tv.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            scheduler.addView(tv);
-        }
+        ActionAdapter actionAdapter = new ActionAdapter(getActivity(), actions);
+        scheduler.setAdapter(actionAdapter);
     }
 }
