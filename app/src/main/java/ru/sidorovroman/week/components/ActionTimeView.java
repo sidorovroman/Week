@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.TimeUtil;
+import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.ActionTime;
 
@@ -30,18 +32,11 @@ import ru.sidorovroman.week.models.ActionTime;
  */
 public class ActionTimeView extends LinearLayout {
 
-    private final IActionTime mListener;
     private final ActionTime actionTime;
     private final ActionTimeView component;
 
-    public interface IActionTime{
-        void onSetTimeTo(int timeToValue,int pseudoId);
-        void onSetTimeFrom(int timeFromValue,int pseudoId);
-        void onSetDays(List<Integer> selectedDays,int pseudoId);
-        void onDelete(int pseudoId);
-    }
-
     private final List<Integer> selectedDays = new ArrayList();
+    private final WeekDbHelper db;
     private EditText days;
     private int timeFromValue;
     private int timeToValue;
@@ -51,11 +46,11 @@ public class ActionTimeView extends LinearLayout {
     private TextView from;
     private TextView to;
 
-    public ActionTimeView(Context context, final ActionTime actionTime, final FragmentManager fragmentManager, IActionTime listener) {
+    public ActionTimeView(Context context, final ActionTime actionTime, final FragmentManager fragmentManager) {
         super(context);
-        this.mListener = listener;
         this.actionTime = actionTime;
         this.component = this;
+        this.db = new WeekDbHelper(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.component_action_time, this, true);
         days = (EditText) findViewById(R.id.days);
@@ -65,10 +60,8 @@ public class ActionTimeView extends LinearLayout {
         btnClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onDelete(actionTime.getPseudoId());
-                    ((ViewManager)component.getParent()).removeView(component);
-                }
+                ((ViewManager)component.getParent()).removeView(component);
+                db.removeActionTime(actionTime.getId());
             }
         });
         String text = "";
@@ -78,8 +71,8 @@ public class ActionTimeView extends LinearLayout {
         }
 
         days.setText(text);
-        from.setText(actionTime.getTimeFrom() / 60 + ":" + actionTime.getTimeFrom() % 60);
-        to.setText(actionTime.getTimeTo()/60 + ":" + actionTime.getTimeTo()%60);
+        from.setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
+        to.setText(TimeUtil.convertTime(actionTime.getTimeTo()));
 
         from.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,9 +135,8 @@ public class ActionTimeView extends LinearLayout {
 
                         days.setText(text);
 
-                        if (mListener != null) {
-                            mListener.onSetDays(selectedDays,actionTime.getPseudoId());
-                        }
+                        actionTime.setWeekDayIds(selectedDays);
+                        db.updateActionTime(actionTime);
 
                     }
                 })
@@ -168,9 +160,9 @@ public class ActionTimeView extends LinearLayout {
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
                         from.setText("" + hourOfDay + ": " + minute);
                         timeFromValue = hourOfDay * 60 + minute;
-                        if (mListener != null) {
-                            mListener.onSetTimeFrom(timeFromValue,actionTime.getPseudoId());
-                        }
+                        actionTime.setTimeFrom(timeFromValue);
+                        db.updateActionTime(actionTime);
+
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
@@ -184,9 +176,9 @@ public class ActionTimeView extends LinearLayout {
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
                         to.setText("" + hourOfDay + ": " + minute);
                         timeToValue = hourOfDay * 60 + minute;
-                        if (mListener != null) {
-                            mListener.onSetTimeTo(timeToValue,actionTime.getPseudoId());
-                        }
+
+                        actionTime.setTimeTo(timeToValue);
+                        db.updateActionTime(actionTime);
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),

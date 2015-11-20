@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -42,14 +41,13 @@ public class ActionDetailActivity extends AppCompatActivity {
     private TimePickerDialog timePickerDialogFrom;
     private TimePickerDialog timePickerDialogTo;
 
-    private WeekDbHelper weekDbHelper;
+    private WeekDbHelper db;
     private EditText nameField;
     private LinearLayout actionsTimeContainer;
 
 
     private AlertDialog dialog;
-    private long actionId;
-    private List<ActionTime> actionTimes;
+    private Long actionId;
     private int timeFromTemp;
     private int timeToTemp;
 
@@ -59,7 +57,7 @@ public class ActionDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_action);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        weekDbHelper = new WeekDbHelper(this);
+        db = new WeekDbHelper(this);
 
         multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
         nameField = (EditText) findViewById(R.id.name);
@@ -70,10 +68,9 @@ public class ActionDetailActivity extends AppCompatActivity {
         actionId = getIntent().getLongExtra(ACTION_ID_KEY, 0);
         if (actionId != 0) {
             Toast.makeText(this, "Изменение ", Toast.LENGTH_SHORT).show();
-            Action action = weekDbHelper.getActionById(actionId);
+            Action action = db.getAction(actionId);
             nameField.setText(action.getName());
             selectedCategories.addAll(action.getCategoryIds());
-
             String text = "";
 
             for (Integer dayIndex : selectedCategories) {
@@ -82,14 +79,30 @@ public class ActionDetailActivity extends AppCompatActivity {
             }
 
             multiSelectionSpinner.setText(text);
-            actionTimes = action.getActionTimeList();
-            for (ActionTime actionTime : actionTimes) {
+            for (ActionTime actionTime : db.getActionTimes(actionId)) {
                 addActionTimeComponentView(actionTime);
             }
         } else {
             Toast.makeText(this, "Создание ", Toast.LENGTH_SHORT).show();
-            actionTimes = new ArrayList<>();
         }
+
+        nameField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus && !nameField.getText().toString().isEmpty()){
+                    Action action = new Action(nameField.getText().toString(), selectedCategories);
+
+                    if (actionId == 0) {
+                        //create action
+                        actionId = db.addAction(action);
+                    } else {
+                        // update action
+                        action.setId(actionId);
+                        db.updateAction(action);
+                    }
+                }
+            }
+        });
 
 
         multiSelectionSpinner.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +123,23 @@ public class ActionDetailActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onPause() {
+        String name = nameField.getText().toString();
+        if(!name.isEmpty()){
+            Action action = new Action(nameField.getText().toString(), selectedCategories);
+            if (actionId == 0) {
+                //create action
+                actionId = db.addAction(action);
+            } else {
+                // update action
+                action.setId(actionId);
+                db.updateAction(action);
+            }
+        }
+        super.onPause();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.action_detail, menu);
@@ -124,22 +154,14 @@ public class ActionDetailActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.action_save:
-                Action action = new Action(nameField.getText().toString(), selectedCategories, actionTimes);
 
-                if (actionId == 0) {
-                    //create action
-                    actionId = weekDbHelper.addAction(action);
-                } else {
-                    // update action
-                    action.setId(actionId);
-                    weekDbHelper.updateAction(action);
-                }
                 finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void openDaysDialogNew() {
         final Context context = this;
         WeekDay[] values = WeekDay.values();
@@ -198,7 +220,6 @@ public class ActionDetailActivity extends AppCompatActivity {
         dialog = builder.create();//AlertDialog dialog; create like this outside onClick
         dialog.show();
     }
-
 
     private void openCategoriesDialog() {
         Category[] values = Category.values();
@@ -289,53 +310,14 @@ public class ActionDetailActivity extends AppCompatActivity {
     }
 
     private void addActionTime() {
-        ActionTime actionTime = new ActionTime(selectedDaysTemp,timeFromTemp,timeToTemp);
-        actionTimes.add(actionTime);
-
+        ActionTime actionTime = new ActionTime(actionId,selectedDaysTemp,timeFromTemp,timeToTemp);
+        db.addActionTime(actionTime);
         addActionTimeComponentView(actionTime);
     }
 
     private void addActionTimeComponentView(ActionTime actionTime) {
-        ActionTimeView actionTimeView = new ActionTimeView(this, actionTime, getFragmentManager(), new ru.sidorovroman.week.components.ActionTimeView.IActionTime() {
-
-            @Override
-            public void onSetTimeTo(int timeToValue, int pseudoId) {
-                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
-                getActionTimeByPseudoId(pseudoId).setTimeTo(timeToValue);
-            }
-
-            @Override
-            public void onSetTimeFrom(int timeFromValue, int pseudoId) {
-                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
-                getActionTimeByPseudoId(pseudoId).setTimeFrom(timeFromValue);
-
-            }
-
-            @Override
-            public void onSetDays(List<Integer> selectedDays, int pseudoId) {
-                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
-                getActionTimeByPseudoId(pseudoId).setWeekDayIds(selectedDays);
-
-            }
-
-            @Override
-            public void onDelete(int pseudoId) {
-                Toast.makeText(ActionDetailActivity.this, "pseudoId:" + pseudoId,Toast.LENGTH_SHORT).show();
-                actionTimes.remove(getActionTimeByPseudoId(pseudoId));
-
-            }
-        });
-
+        ActionTimeView actionTimeView = new ActionTimeView(this, actionTime, getFragmentManager());
         actionsTimeContainer.addView(actionTimeView);
     }
 
-    private ActionTime getActionTimeByPseudoId(int pseudoId){
-        for (ActionTime actionTime : actionTimes) {
-            if(actionTime.getPseudoId() == pseudoId){
-                return actionTime;
-            }
-        }
-
-        return null;
-    }
 }

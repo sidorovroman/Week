@@ -5,9 +5,9 @@ import android.provider.BaseColumns;
 /**
  * Created by sidorovroman on 07.11.15.
  */
-public class EntryScheduler implements BaseColumns {
+public class EntryActionTime implements BaseColumns {
 
-    public static final String TABLE_NAME = "table_sheduler";
+    public static final String TABLE_NAME = "table_action_time";
 
     public static final String COLUMN_WEEK_DAY_IDS = "column_week_day_ids";
     public static final String COLUMN_ACTION_ID = "column_action_id";

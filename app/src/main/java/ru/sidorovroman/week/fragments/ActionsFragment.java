@@ -57,7 +57,7 @@ public class ActionsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        allActions = db.getAllActions();
+        allActions = db.getActions();
 
         final MySimpleArrayAdapter mAdapter = new MySimpleArrayAdapter(getActivity(), allActions);
         actionsList.setAdapter(mAdapter);
@@ -72,9 +72,7 @@ public class ActionsFragment extends Fragment {
                     getActivity().setResult(getActivity().RESULT_OK, intent);
                     getActivity().finish();
                 } else {
-                    Intent intent = new Intent(getContext(), ActionDetailActivity.class);
-                    intent.putExtra(ActionDetailActivity.ACTION_ID_KEY, action.getId());
-                    startActivity(intent);
+                    openActionDetailActivity(action.getId());
                 }
             }
         });
@@ -83,12 +81,14 @@ public class ActionsFragment extends Fragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 final Action action = allActions.get(position);
 
-                final CharSequence[] items = {"Удалить"};
+                final CharSequence[] items = {"Редактировать","Удалить"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
                         if(item == 0){
+                            openActionDetailActivity(action.getId());
+                        } else  if(item == 1){
                             db.removeAction(action.getId());
                             allActions.remove(action);
                             mAdapter.notifyDataSetChanged();
@@ -102,6 +102,13 @@ public class ActionsFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    private void openActionDetailActivity(long id) {
+
+        Intent intent = new Intent(getContext(), ActionDetailActivity.class);
+        intent.putExtra(ActionDetailActivity.ACTION_ID_KEY, id);
+        startActivity(intent);
     }
 
     @Override

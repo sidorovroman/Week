@@ -127,8 +127,8 @@ public class DaysFragment extends Fragment {
     private void addActionTimeToAction() {
         List<Integer> weekDayIds = new ArrayList<>();
         weekDayIds.add(viewPager.getCurrentItem());
-        ActionTime actionTime = new ActionTime(weekDayIds,timeFromTemp,timeToTemp);
-        weekDbHelper.addActionTime(tempActionId, actionTime);
+        ActionTime actionTime = new ActionTime(tempActionId,weekDayIds,timeFromTemp,timeToTemp);
+        weekDbHelper.addActionTime(actionTime);
 
         updateTabsContent();
     }

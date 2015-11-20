@@ -5,20 +5,30 @@ import java.util.List;
 /**
  * Created by sidorovroman on 31.10.15.
  */
-public class ActionTime extends PseudoModel{
+public class ActionTime extends Model{
 
 
     private List<Integer> weekDayIds;
-    private int timeFrom;
-    private int timeTo;
+    private Long actionId;
+    private Integer timeFrom;
+    private Integer timeTo;
 
     public ActionTime() {
     }
 
-    public ActionTime(List<Integer> weekDayIds, int timeFrom, int timeTo) {
+    public ActionTime(Long actionId,List<Integer> weekDayIds, Integer timeFrom, Integer timeTo) {
+        this.actionId = actionId;
         this.weekDayIds = weekDayIds;
         this.timeFrom = timeFrom;
         this.timeTo = timeTo;
+    }
+
+    public Long getActionId() {
+        return actionId;
+    }
+
+    public void setActionId(Long actionId) {
+        this.actionId = actionId;
     }
 
     public List<Integer> getWeekDayIds() {
@@ -29,24 +39,20 @@ public class ActionTime extends PseudoModel{
         this.weekDayIds = weekDayIds;
     }
 
-    public int getTimeFrom() {
+    public Integer getTimeFrom() {
         return timeFrom;
     }
 
-    public void setTimeFrom(int timeFrom) {
+    public void setTimeFrom(Integer timeFrom) {
         this.timeFrom = timeFrom;
     }
 
-    public int getTimeTo() {
+    public Integer getTimeTo() {
         return timeTo;
     }
 
-    public void setTimeTo(int timeTo) {
+    public void setTimeTo(Integer timeTo) {
         this.timeTo = timeTo;
     }
 
-    @Override
-    public String toString() {
-        return "pseudoId : " + getPseudoId() + " weekDayIds: " + weekDayIds + " timeFrom: " + timeFrom + " timeTo: " + timeTo;
-    }
 }

@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ru.sidorovroman.week.ActionAdapter;
@@ -19,6 +21,7 @@ import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
+import ru.sidorovroman.week.models.ActionTime;
 
 
 public class DayFragment extends Fragment{
@@ -68,9 +71,14 @@ public class DayFragment extends Fragment{
     private void readAll() {
         WeekDbHelper weekDbHelper = new WeekDbHelper(getActivity());
 
-        List<Action> actions = weekDbHelper.getActionsByWeekDay(day);
-
-        ActionAdapter actionAdapter = new ActionAdapter(getActivity(), actions);
+        List<ActionTime> actionTimes = weekDbHelper.getActionTimesByWeekDay(day);
+        Collections.sort(actionTimes, new Comparator<ActionTime>() {
+            @Override
+            public int compare(final ActionTime object1, final ActionTime object2) {
+                return object1.getTimeFrom().compareTo(object2.getTimeFrom());
+            }
+        });
+        ActionAdapter actionAdapter = new ActionAdapter(getActivity(), actionTimes);
         scheduler.setAdapter(actionAdapter);
     }
 }
