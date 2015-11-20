@@ -139,22 +139,12 @@ public class ActionDetailActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.action_detail, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                return true;
-            case R.id.action_save:
-
                 finish();
                 return true;
             default:

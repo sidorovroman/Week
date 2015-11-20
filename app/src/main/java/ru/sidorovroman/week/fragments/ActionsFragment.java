@@ -1,5 +1,6 @@
 package ru.sidorovroman.week.fragments;
 
+import android.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ import ru.sidorovroman.week.models.Action;
  */
 public class ActionsFragment extends Fragment {
 
-    private static final String FRAGMENT_EXTRA_KEY = "fragment_extra_key";
+    public static final String FRAGMENT_EXTRA_KEY = "fragment_extra_key";
     public static final String ACTIVITY_ID_KEY = "activity_id_key";
     private static final String LOG_TAG = ActionsFragment.class.getSimpleName();
     private List<Action> allActions;
@@ -43,6 +44,7 @@ public class ActionsFragment extends Fragment {
 
         return actionsFragment;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,7 @@ public class ActionsFragment extends Fragment {
         if(arguments != null) {
             listForReturnActionId = arguments.getBoolean(FRAGMENT_EXTRA_KEY, false);
         }
+
         db = new WeekDbHelper(getActivity());
     }
 

@@ -1,6 +1,7 @@
 package ru.sidorovroman.week.activity;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import ru.sidorovroman.week.R;
@@ -19,5 +20,10 @@ public class ActionsListActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.container, ActionsFragment.newInstance(true))
                 .commit();
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null){
+            actionBar.setTitle("Выберите деятельность");
+        }
     }
 }
