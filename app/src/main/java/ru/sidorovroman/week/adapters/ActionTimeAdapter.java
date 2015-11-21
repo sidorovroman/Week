@@ -1,4 +1,4 @@
-package ru.sidorovroman.week;
+package ru.sidorovroman.week.adapters;
 
 import android.content.Context;
 import android.os.Build;
@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import ru.sidorovroman.week.R;
+import ru.sidorovroman.week.TimeUtil;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.ActionTime;
@@ -21,13 +23,13 @@ import ru.sidorovroman.week.models.ActionTime;
 /**
  * Created by romansidorov on 18.11.15.
  */
-public class ActionAdapter extends BaseAdapter {
+public class ActionTimeAdapter extends BaseAdapter {
     Context ctx;
     LayoutInflater lInflater;
     List<ActionTime> objects;
     WeekDbHelper db;
 
-    public ActionAdapter(Context context, List<ActionTime> products) {
+    public ActionTimeAdapter(Context context, List<ActionTime> products) {
         ctx = context;
         objects = products;
         db = new WeekDbHelper(context);
@@ -68,7 +70,7 @@ public class ActionAdapter extends BaseAdapter {
         ((TextView) view.findViewById(R.id.actionName)).setText(action.getName());
 
         ((TextView) view.findViewById(R.id.timeFrom)).setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
-//        ((TextView) view.findViewById(R.id.timeTo)).setText(TimeUtil.convertTime(actionTime.getTimeTo()));
+        ((TextView) view.findViewById(R.id.timeTo)).setText(TimeUtil.convertTime(actionTime.getTimeTo()));
         ImageView indicatorView = (ImageView) view.findViewById(R.id.task_indicator);
 
         Calendar c = Calendar.getInstance();

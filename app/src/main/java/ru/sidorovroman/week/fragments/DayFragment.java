@@ -15,12 +15,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ru.sidorovroman.week.ActionAdapter;
+import ru.sidorovroman.week.adapters.ActionTimeAdapter;
 import ru.sidorovroman.week.DrawView;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
-import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.ActionTime;
 
 
@@ -78,7 +77,7 @@ public class DayFragment extends Fragment{
                 return object1.getTimeFrom().compareTo(object2.getTimeFrom());
             }
         });
-        ActionAdapter actionAdapter = new ActionAdapter(getActivity(), actionTimes);
-        scheduler.setAdapter(actionAdapter);
+        ActionTimeAdapter actionTimeAdapter = new ActionTimeAdapter(getActivity(), actionTimes);
+        scheduler.setAdapter(actionTimeAdapter);
     }
 }

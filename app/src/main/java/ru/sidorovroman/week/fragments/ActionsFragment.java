@@ -1,6 +1,5 @@
 package ru.sidorovroman.week.fragments;
 
-import android.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +15,7 @@ import android.widget.ListView;
 
 import java.util.List;
 
-import ru.sidorovroman.week.MySimpleArrayAdapter;
+import ru.sidorovroman.week.adapters.ActionAdapter;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.activity.ActionDetailActivity;
 import ru.sidorovroman.week.db.WeekDbHelper;
@@ -62,7 +61,7 @@ public class ActionsFragment extends Fragment {
         super.onResume();
         allActions = db.getActions();
 
-        final MySimpleArrayAdapter mAdapter = new MySimpleArrayAdapter(getActivity(), allActions);
+        final ActionAdapter mAdapter = new ActionAdapter(getActivity(), allActions);
         actionsList.setAdapter(mAdapter);
         actionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

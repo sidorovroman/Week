@@ -1,4 +1,4 @@
-package ru.sidorovroman.week;
+package ru.sidorovroman.week.adapters;
 
 /**
  * Created by sidorovroman on 07.11.15.
@@ -12,14 +12,15 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.models.Action;
 
-public class MySimpleArrayAdapter extends ArrayAdapter<Action> {
+public class ActionAdapter extends ArrayAdapter<Action> {
 
     private  Context context;
     private  List<Action> values;
 
-    public MySimpleArrayAdapter(Context context, List<Action> values) {
+    public ActionAdapter(Context context, List<Action> values) {
         super(context, R.layout.text_row_item, values);
         this.context = context;
         this.values = values;
