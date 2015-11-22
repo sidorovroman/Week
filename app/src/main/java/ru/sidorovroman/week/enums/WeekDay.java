@@ -1,5 +1,7 @@
 package ru.sidorovroman.week.enums;
 
+import java.util.Calendar;
+
 /**
  * Created by sidorovroman on 31.10.15.
  */
@@ -38,5 +40,20 @@ public enum WeekDay {
         }
 
         throw new NullPointerException("Нет такого дня? что-то напутал значит");
+    }
+
+    public static int getCurrentDayTabIndex(){
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+
+        // Sunday = 1. Saturday = 7; tabIndex monday = 0, sunday = 6
+        // that's why -2
+
+        int tabIndex = day - 2;
+
+        if(tabIndex == -1) // this is sunday
+            tabIndex = 6;  // this tab index for sunday
+
+        return tabIndex;
     }
 }

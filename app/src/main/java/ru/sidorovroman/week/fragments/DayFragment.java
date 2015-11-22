@@ -77,7 +77,7 @@ public class DayFragment extends Fragment{
                 return object1.getTimeFrom().compareTo(object2.getTimeFrom());
             }
         });
-        ActionTimeAdapter actionTimeAdapter = new ActionTimeAdapter(getActivity(), actionTimes);
+        ActionTimeAdapter actionTimeAdapter = new ActionTimeAdapter(getActivity(), actionTimes, day);
         scheduler.setAdapter(actionTimeAdapter);
     }
 }

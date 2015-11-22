@@ -1,8 +1,7 @@
 package ru.sidorovroman.week.adapters;
 
 import android.content.Context;
-import android.os.Build;
-import android.text.format.Time;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.TimeUtil;
 import ru.sidorovroman.week.db.WeekDbHelper;
+import ru.sidorovroman.week.enums.WeekDay;
 import ru.sidorovroman.week.models.Action;
 import ru.sidorovroman.week.models.ActionTime;
 
@@ -24,13 +23,16 @@ import ru.sidorovroman.week.models.ActionTime;
  * Created by romansidorov on 18.11.15.
  */
 public class ActionTimeAdapter extends BaseAdapter {
+    private static final String LOG_TAG = ActionTimeAdapter.class.getSimpleName();
+    private final WeekDay day;
     Context ctx;
     LayoutInflater lInflater;
     List<ActionTime> objects;
     WeekDbHelper db;
 
-    public ActionTimeAdapter(Context context, List<ActionTime> products) {
+    public ActionTimeAdapter(Context context, List<ActionTime> products, WeekDay day) {
         ctx = context;
+        this.day = day;
         objects = products;
         db = new WeekDbHelper(context);
         lInflater = (LayoutInflater) ctx
@@ -78,11 +80,9 @@ public class ActionTimeAdapter extends BaseAdapter {
         int hours = c.get(Calendar.HOUR_OF_DAY);
         int minutes = c.get(Calendar.MINUTE);
         int timeInMinutes = hours * 60 + minutes;
-        if(timeInMinutes >= actionTime.getTimeFrom() && timeInMinutes <= actionTime.getTimeTo()){
+        if(WeekDay.getCurrentDayTabIndex() == day.getIndex() && timeInMinutes >= actionTime.getTimeFrom() && timeInMinutes <= actionTime.getTimeTo()){
             indicatorView.setImageResource(R.drawable.action_current);
         }
         return view;
     }
-
-
 }

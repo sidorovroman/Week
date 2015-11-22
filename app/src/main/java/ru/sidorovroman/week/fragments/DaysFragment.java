@@ -77,18 +77,9 @@ public class DaysFragment extends Fragment {
         }
         viewPager.setAdapter(adapter);
 
-        Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
 
-        // Sunday = 1. Saturday = 7; tabIndex monday = 0, sunday = 6
-        // that's why -2
-
-        int tabIndex = day - 2;
-
-        if(tabIndex == -1) // this is sunday
-            tabIndex = 6;  // this tab index for sunday
-
-        viewPager.setCurrentItem(tabIndex);
+        int currentTabIndex = WeekDay.getCurrentDayTabIndex();
+        viewPager.setCurrentItem(currentTabIndex);
     }
 
     private void initTimePickers() {
