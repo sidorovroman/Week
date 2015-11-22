@@ -7,17 +7,14 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -34,10 +31,11 @@ public class ActionTimeView extends LinearLayout {
 
     private final ActionTime actionTime;
     private final ActionTimeView component;
+    private final LinearLayout dayImgContainer;
 
-    private final List<Integer> selectedDays = new ArrayList();
+    private List<Integer> selectedDays;
     private final WeekDbHelper db;
-    private EditText days;
+    private LinearLayout daysRow;
     private int timeFromValue;
     private int timeToValue;
     private AlertDialog dialog;
@@ -53,7 +51,8 @@ public class ActionTimeView extends LinearLayout {
         this.db = new WeekDbHelper(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.component_action_time, this, true);
-        days = (EditText) findViewById(R.id.days);
+        daysRow = (LinearLayout) findViewById(R.id.daysRow);
+        dayImgContainer = (LinearLayout) findViewById(R.id.daysImg);
         from = (TextView) findViewById(R.id.from);
         to = (TextView) findViewById(R.id.to);
         ImageView btnClear = (ImageButton) findViewById(R.id.btnClear);
@@ -64,13 +63,17 @@ public class ActionTimeView extends LinearLayout {
                 db.removeActionTime(actionTime.getId());
             }
         });
-        String text = "";
-        for (Integer dayIndex : actionTime.getWeekDayIds()) {
-            WeekDay day = WeekDay.getDayByIndex(dayIndex);
-            text += day.getLabel();
-        }
 
-        days.setText(text);
+        selectedDays = actionTime.getWeekDayIds();
+
+//        String text = "";
+//        for (Integer dayIndex : selectedDays) {
+//            WeekDay day = WeekDay.getDayByIndex(dayIndex);
+//            text += day.getLabel();
+//        }
+
+        redrawDays();
+//        days.setText(text);
         from.setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
         to.setText(TimeUtil.convertTime(actionTime.getTimeTo()));
 
@@ -87,7 +90,7 @@ public class ActionTimeView extends LinearLayout {
             }
         });
 
-        days.setOnClickListener(new View.OnClickListener() {
+        daysRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDaysDialog();
@@ -96,17 +99,37 @@ public class ActionTimeView extends LinearLayout {
         initTimePicker();
     }
 
+    private void redrawDays() {
+        dayImgContainer.removeAllViews();
+
+        int resource;
+        boolean[] checkedDays = getCheckedDays();
+
+        for (int i=0;i<checkedDays.length;i++) {
+
+            LayoutInflater inflater = (LayoutInflater)   getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view ;
+
+            boolean checkedDay = checkedDays[i];
+            if(checkedDay){
+                view = inflater.inflate(R.layout.day_point_selected, null);
+                ((TextView)view.findViewById(R.id.day)).setText(WeekDay.getDayByIndex(i).getLabel().substring(0, 1).toLowerCase());
+            }else {
+                view = inflater.inflate(R.layout.day_point_default, null);
+            }
+            dayImgContainer.addView(view);
+        }
+    }
+
 
     private void openDaysDialog() {
+
         WeekDay[] values = WeekDay.values();
         CharSequence[] items = new CharSequence[values.length];
         for (int i = 0; i < values.length; i++) {
             items[i] = values[i].getLabel();
         }
-        boolean[] checkedItems = new boolean[values.length];
-        for (Integer catIndex : selectedDays) {
-            checkedItems[catIndex] = true;
-        }
+        boolean[] checkedItems = getCheckedDays();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Select The Difficulty Level");
@@ -127,13 +150,14 @@ public class ActionTimeView extends LinearLayout {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
 
-                        String text = "";
-                        for (Integer dayIndex : selectedDays) {
-                            WeekDay day = WeekDay.getDayByIndex(dayIndex);
-                            text += day.getLabel();
-                        }
-
-                        days.setText(text);
+                        redrawDays();
+//                        String text = "";
+//                        for (Integer dayIndex : selectedDays) {
+//                            WeekDay day = WeekDay.getDayByIndex(dayIndex);
+//                            text += day.getLabel();
+//                        }
+//
+//                        days.setText(text);
 
                         actionTime.setWeekDayIds(selectedDays);
                         db.updateActionTime(actionTime);
@@ -151,6 +175,17 @@ public class ActionTimeView extends LinearLayout {
         dialog = builder.create();//AlertDialog dialog; create like this outside onClick
         dialog.show();
     }
+
+    private boolean[] getCheckedDays() {
+        WeekDay[] values = WeekDay.values();
+
+        boolean[] checkedItems = new boolean[values.length];
+        for (Integer catIndex : selectedDays) {
+            checkedItems[catIndex] = true;
+        }
+        return checkedItems;
+    }
+
     private void initTimePicker() {
         Calendar now = Calendar.getInstance();
 

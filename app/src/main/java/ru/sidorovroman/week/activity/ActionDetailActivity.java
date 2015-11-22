@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -35,7 +34,7 @@ public class ActionDetailActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ActionDetailActivity.class.getSimpleName();
     public static final String ACTION_ID_KEY = "action_id_key";
-    private EditText multiSelectionSpinner;
+    private EditText catsSelector;
     private final List<Integer> selectedCategories = new ArrayList();
     private List<Integer> selectedDaysTemp;
     private TimePickerDialog timePickerDialogFrom;
@@ -59,7 +58,7 @@ public class ActionDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         db = new WeekDbHelper(this);
 
-        multiSelectionSpinner = (EditText) findViewById(R.id.mySpinner);
+        catsSelector = (EditText) findViewById(R.id.cats);
         nameField = (EditText) findViewById(R.id.name);
         actionsTimeContainer = (LinearLayout) findViewById(R.id.actionsTimeContainer);
 
@@ -78,7 +77,7 @@ public class ActionDetailActivity extends AppCompatActivity {
                 text += category.getLabel();
             }
 
-            multiSelectionSpinner.setText(text);
+            catsSelector.setText(text);
             for (ActionTime actionTime : db.getActionTimes(actionId)) {
                 addActionTimeComponentView(actionTime);
             }
@@ -105,7 +104,7 @@ public class ActionDetailActivity extends AppCompatActivity {
         });
 
 
-        multiSelectionSpinner.setOnClickListener(new View.OnClickListener() {
+        catsSelector.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openCategoriesDialog();
@@ -249,7 +248,7 @@ public class ActionDetailActivity extends AppCompatActivity {
                             text += category.getLabel();
                         }
 
-                        multiSelectionSpinner.setText(text);
+                        catsSelector.setText(text);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

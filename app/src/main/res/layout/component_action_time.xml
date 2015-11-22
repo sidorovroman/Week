@@ -7,27 +7,37 @@
     android:background="@drawable/myrect"
     android:layout_marginBottom="@dimen/activity_horizontal_margin">
 
-    <RelativeLayout
-        android:orientation="horizontal"
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnClear"
+        android:src="@drawable/ic_clear_24dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="true" />
+
+    <LinearLayout
+        android:id="@+id/daysRow"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="@dimen/list_item_height_small">
 
-        <EditText
-            android:id="@+id/days"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/imageButton" />
-
-        <ImageButton
+        <TextView
+            android:id="@+id/title"
+            android:text="Повторения: "
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btnClear"
-            android:src="@drawable/ic_clear_24dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentRight="true" />
+            android:layout_toLeftOf="@+id/btnClear" />
 
-    </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/daysImg"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
