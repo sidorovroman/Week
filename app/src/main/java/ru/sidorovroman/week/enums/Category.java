@@ -17,11 +17,18 @@ public enum Category {
 
     private final String label;
     private final int index;
+//    private final int res;
 
     Category(int index, String label) {
         this.index = index;
         this.label = label;
     }
+
+//    Category(int index, String label, int res) {
+//        this.index = index;
+//        this.label = label;
+//        this.res = res;
+//    }
 
     public String getLabel() {
         return label;
@@ -30,6 +37,10 @@ public enum Category {
     public int getIndex() {
         return index;
     }
+
+//    public int getRes() {
+//        return res;
+//    }
 
     public static Category getCategoryByIndex(Integer categoryIndex) {
         for (Category category : values()) {

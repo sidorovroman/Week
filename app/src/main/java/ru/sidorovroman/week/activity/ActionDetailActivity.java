@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
@@ -34,7 +37,8 @@ public class ActionDetailActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ActionDetailActivity.class.getSimpleName();
     public static final String ACTION_ID_KEY = "action_id_key";
-    private EditText catsSelector;
+    private LinearLayout catsSelector;
+    private LinearLayout catsRow;
     private final List<Integer> selectedCategories = new ArrayList();
     private List<Integer> selectedDaysTemp;
     private TimePickerDialog timePickerDialogFrom;
@@ -58,7 +62,8 @@ public class ActionDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         db = new WeekDbHelper(this);
 
-        catsSelector = (EditText) findViewById(R.id.cats);
+        catsSelector = (LinearLayout) findViewById(R.id.catsContainer);
+        catsRow = (LinearLayout) findViewById(R.id.catsRow);
         nameField = (EditText) findViewById(R.id.name);
         actionsTimeContainer = (LinearLayout) findViewById(R.id.actionsTimeContainer);
 
@@ -70,14 +75,14 @@ public class ActionDetailActivity extends AppCompatActivity {
             Action action = db.getAction(actionId);
             nameField.setText(action.getName());
             selectedCategories.addAll(action.getCategoryIds());
-            String text = "";
+//            String text = "";
+//
+//            for (Integer dayIndex : selectedCategories) {
+//                Category category = Category.getCategoryByIndex(dayIndex);
+//                text += category.getLabel();
+//            }
 
-            for (Integer dayIndex : selectedCategories) {
-                Category category = Category.getCategoryByIndex(dayIndex);
-                text += category.getLabel();
-            }
-
-            catsSelector.setText(text);
+            redrawCats();
             for (ActionTime actionTime : db.getActionTimes(actionId)) {
                 addActionTimeComponentView(actionTime);
             }
@@ -104,7 +109,7 @@ public class ActionDetailActivity extends AppCompatActivity {
         });
 
 
-        catsSelector.setOnClickListener(new View.OnClickListener() {
+        catsRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openCategoriesDialog();
@@ -118,6 +123,26 @@ public class ActionDetailActivity extends AppCompatActivity {
                 openDaysDialogNew();
             }
         });
+    }
+
+    private void redrawCats() {
+        catsSelector.removeAllViews();
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view;
+        Category[] values = Category.values();
+
+        for (Category cat : values) {
+            if(selectedCategories.contains(cat.getIndex())){
+                view = inflater.inflate(R.layout.cat_ball, null);
+
+                String temp = cat.getLabel().substring(0, 1);
+                ((TextView)view.findViewById(R.id.catName)).setText(temp);
+                //TODO: сделай так
+//                view.setBackground(getResources().getDrawable(cat.getRes()));
+                catsSelector.addView(view);
+            }
+        }
     }
 
 
@@ -241,14 +266,15 @@ public class ActionDetailActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
 
-
-                        String text = "";
-                        for (Integer dayIndex : selectedCategories) {
-                            Category category = Category.getCategoryByIndex(dayIndex);
-                            text += category.getLabel();
-                        }
-
-                        catsSelector.setText(text);
+                        redrawCats();
+//
+//                        String text = "";
+//                        for (Integer dayIndex : selectedCategories) {
+//                            Category category = Category.getCategoryByIndex(dayIndex);
+//                            text += category.getLabel();
+//                        }
+//
+//                        catsSelector.setText(text);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

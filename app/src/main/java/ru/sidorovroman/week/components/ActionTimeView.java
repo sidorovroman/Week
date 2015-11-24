@@ -105,16 +105,16 @@ public class ActionTimeView extends LinearLayout {
         int resource;
         boolean[] checkedDays = getCheckedDays();
 
-        for (int i=0;i<checkedDays.length;i++) {
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view;
 
-            LayoutInflater inflater = (LayoutInflater)   getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view ;
+        for (int i = 0; i < checkedDays.length; i++) {
 
             boolean checkedDay = checkedDays[i];
-            if(checkedDay){
+            if (checkedDay) {
                 view = inflater.inflate(R.layout.day_point_selected, null);
-                ((TextView)view.findViewById(R.id.day)).setText(WeekDay.getDayByIndex(i).getLabel().substring(0, 1).toLowerCase());
-            }else {
+                ((TextView) view.findViewById(R.id.day)).setText(WeekDay.getDayByIndex(i).getLabel().substring(0, 1).toLowerCase());
+            } else {
                 view = inflater.inflate(R.layout.day_point_default, null);
             }
             dayImgContainer.addView(view);

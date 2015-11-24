@@ -27,10 +27,29 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/cats"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/catsRow"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="@dimen/list_item_height_small">
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Категории:"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical" />
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/catsContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/actionsTimeContainer"
