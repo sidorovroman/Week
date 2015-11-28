@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ru.sidorovroman.week.adapters.ActionTimeAdapter;
-import ru.sidorovroman.week.DrawView;
+import ru.sidorovroman.week.TimeLineView;
 import ru.sidorovroman.week.R;
 import ru.sidorovroman.week.db.WeekDbHelper;
 import ru.sidorovroman.week.enums.WeekDay;
@@ -53,9 +53,11 @@ public class DayFragment extends Fragment{
         timeLineContainer = (RelativeLayout) inflate.findViewById(R.id.timeline);
         scheduler = (ListView) inflate.findViewById(R.id.scheduler);
 
-        DrawView drawView = new DrawView(getActivity(), getScreenWidth());
-        timeLineContainer.addView(drawView);
-        readAll();
+        List<ActionTime> actionTimes = getActions();
+
+        timeLineContainer.addView(new TimeLineView(getActivity(), actionTimes, getScreenWidth()));
+
+        scheduler.setAdapter(new ActionTimeAdapter(getActivity(), actionTimes, day));
 
         return inflate;
     }
@@ -67,7 +69,7 @@ public class DayFragment extends Fragment{
         return size.x;
     }
 
-    private void readAll() {
+    private List<ActionTime> getActions() {
         WeekDbHelper weekDbHelper = new WeekDbHelper(getActivity());
 
         List<ActionTime> actionTimes = weekDbHelper.getActionTimesByWeekDay(day);
@@ -77,7 +79,7 @@ public class DayFragment extends Fragment{
                 return object1.getTimeFrom().compareTo(object2.getTimeFrom());
             }
         });
-        ActionTimeAdapter actionTimeAdapter = new ActionTimeAdapter(getActivity(), actionTimes, day);
-        scheduler.setAdapter(actionTimeAdapter);
+
+        return actionTimes;
     }
 }

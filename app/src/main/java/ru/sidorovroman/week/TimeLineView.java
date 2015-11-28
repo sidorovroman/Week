@@ -7,15 +7,21 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
 
+import java.util.List;
+import java.util.Random;
+
+import ru.sidorovroman.week.models.ActionTime;
+
 /**
  * Created by sidorovroman on 25.10.15.
  */
-public class DrawView extends View {
+public class TimeLineView extends View {
 
-    private final String LOG_TAG = DrawView.class.getSimpleName();
+    private final String LOG_TAG = TimeLineView.class.getSimpleName();
     private final float timeLineWidth;
     private final float timeInterval;
     private final long screenWidth;
+    private final List<ActionTime> actionTimes;
     private Paint timeLinePaint;
     private Paint pointPaint;
     private Paint textPaint;
@@ -28,9 +34,10 @@ public class DrawView extends View {
     private long hoursInDay = 24;
     private long minutesInday = hoursInDay * minutesInHour;
 
-    public DrawView(Context context, long screenWidth) {
+    public TimeLineView(Context context, List<ActionTime> actionTimes, long screenWidth) {
         super(context);
         this.screenWidth = screenWidth;
+        this.actionTimes = actionTimes;
         timeLinePaint = new Paint();
         textPaint = new Paint();
         pointPaint = new Paint();
@@ -64,14 +71,35 @@ public class DrawView extends View {
             canvas.drawPoint(pointX, heightOfAction, pointPaint);
             canvas.drawText(String.valueOf(i), pointX, heightOfAction + 20, textPaint);
         }
-        addTimeLine(canvas,0,7,Color.parseColor("#673AB7"));
 
+        Random rnd = new Random();
+
+        for (ActionTime actionTime : actionTimes) {
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            addTimeLine(canvas,actionTime.getTimeFrom(),actionTime.getTimeTo(),color);
+        }
     }
 
-    private void addTimeLine(Canvas canvas, int from, int to, int color) {
+    private void addTimeLine(Canvas canvas, int timeFrom, int timeTo, int color) {
+        int hoursFrom = timeFrom / 60;
+        int minutesFrom = timeFrom % 60;
+        float timeFromRes = hoursFrom + minutesFrom / 60f;
+
+        int hoursTo = timeTo / 60;
+        int minutesTo = timeTo % 60;
+        float timeToRes = hoursTo + minutesTo / 60f;
+
         busyPaint.setColor(color);
         busyPaint.setAlpha(200);
         busyPaint.setStrokeWidth(40);
-        canvas.drawLine(from * timeInterval + startX, heightOfAction - 20, to * timeInterval + startX, heightOfAction - 20, busyPaint);
+
+
+
+        canvas.drawLine(
+                timeFromRes * timeInterval + startX,
+                heightOfAction - 20,
+                timeToRes * timeInterval + startX,
+                heightOfAction - 20,
+                busyPaint);
     }
 }
