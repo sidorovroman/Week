@@ -68,6 +68,8 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
             } while (cursor.moveToNext());
         }
 
+        cursor.close();
+
         return actionList;
     }
 
@@ -110,8 +112,10 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
     public Action getAction(Long id){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + EntryAction.TABLE_NAME + " where " + EntryAction._ID + "='" + id + "'", null);
-        cursor.moveToFirst();
-        return getAction(cursor);
+        if(cursor != null && cursor.moveToFirst()) {
+            return getAction(cursor);
+        }
+        return null;
     }
 
     public ActionTime getActionTime(Long id){
@@ -186,7 +190,8 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
     private Action getAction(Cursor cursor) {
         Action action = new Action();
-        action.setId(Integer.parseInt(cursor.getString(0)));
+        //todo: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
+        action.setId(Long.parseLong(cursor.getString(0)));
         action.setName(cursor.getString(1));
 
         String categoryIdsJsonString = cursor.getString(2);

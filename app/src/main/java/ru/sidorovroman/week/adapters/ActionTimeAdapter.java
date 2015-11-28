@@ -1,6 +1,7 @@
 package ru.sidorovroman.week.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,13 +67,15 @@ public class ActionTimeAdapter extends BaseAdapter {
             view = lInflater.inflate(R.layout.row_action, parent, false);
         }
 
-
+        TextView nameField = (TextView) view.findViewById(R.id.actionName);
         ActionTime actionTime = (ActionTime) getItem(position);
         Action action = db.getAction(actionTime.getActionId());
-        ((TextView) view.findViewById(R.id.actionName)).setText(action.getName());
+        if(action != null){
+            nameField.setText(action.getName());
+            ((TextView) view.findViewById(R.id.timeFrom)).setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
+            ((TextView) view.findViewById(R.id.timeTo)).setText(TimeUtil.convertTime(actionTime.getTimeTo()));
+        }
 
-        ((TextView) view.findViewById(R.id.timeFrom)).setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
-        ((TextView) view.findViewById(R.id.timeTo)).setText(TimeUtil.convertTime(actionTime.getTimeTo()));
         ImageView indicatorView = (ImageView) view.findViewById(R.id.task_indicator);
 
         Calendar c = Calendar.getInstance();
@@ -82,6 +85,7 @@ public class ActionTimeAdapter extends BaseAdapter {
         int timeInMinutes = hours * 60 + minutes;
         if(WeekDay.getCurrentDayTabIndex() == day.getIndex() && timeInMinutes >= actionTime.getTimeFrom() && timeInMinutes <= actionTime.getTimeTo()){
             indicatorView.setImageResource(R.drawable.action_current);
+            nameField.setTypeface(nameField.getTypeface(), Typeface.BOLD);
         }
         return view;
     }
