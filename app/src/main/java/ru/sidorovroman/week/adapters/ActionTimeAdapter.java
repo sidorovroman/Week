@@ -1,6 +1,7 @@
 package ru.sidorovroman.week.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,12 +69,14 @@ public class ActionTimeAdapter extends BaseAdapter {
         }
 
         TextView nameField = (TextView) view.findViewById(R.id.actionName);
+        TextView timeFromField = (TextView) view.findViewById(R.id.timeFrom);
+        TextView timeToField = (TextView) view.findViewById(R.id.timeTo);
         ActionTime actionTime = (ActionTime) getItem(position);
         Action action = db.getAction(actionTime.getActionId());
         if(action != null){
             nameField.setText(action.getName());
-            ((TextView) view.findViewById(R.id.timeFrom)).setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
-            ((TextView) view.findViewById(R.id.timeTo)).setText(TimeUtil.convertTime(actionTime.getTimeTo()));
+            timeFromField.setText(TimeUtil.convertTime(actionTime.getTimeFrom()));
+            timeToField.setText(TimeUtil.convertTime(actionTime.getTimeTo()));
         }
 
         ImageView indicatorView = (ImageView) view.findViewById(R.id.task_indicator);
@@ -85,7 +88,10 @@ public class ActionTimeAdapter extends BaseAdapter {
         int timeInMinutes = hours * 60 + minutes;
         if(WeekDay.getCurrentDayTabIndex() == day.getIndex() && timeInMinutes >= actionTime.getTimeFrom() && timeInMinutes <= actionTime.getTimeTo()){
             indicatorView.setImageResource(R.drawable.action_current);
-            nameField.setTypeface(nameField.getTypeface(), Typeface.BOLD);
+//            nameField.setTypeface(nameField.getTypeface(), Typeface.BOLD);
+            nameField.setTextColor(Color.parseColor("#333333"));
+            timeFromField.setTextColor(Color.parseColor("#333333"));
+            timeToField.setTextColor(Color.parseColor("#333333"));
         }
         return view;
     }

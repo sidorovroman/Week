@@ -38,12 +38,6 @@ public class DayFragment extends Fragment{
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -55,7 +49,12 @@ public class DayFragment extends Fragment{
 
         List<ActionTime> actionTimes = getActions();
 
-        timeLineContainer.addView(new TimeLineView(getActivity(), actionTimes, getScreenWidth()));
+        for (ActionTime a : actionTimes) {
+            Log.d(LOG_TAG, "ac:"+a);
+        }
+
+
+        timeLineContainer.addView(new TimeLineView(getActivity(), actionTimes));
 
         scheduler.setAdapter(new ActionTimeAdapter(getActivity(), actionTimes, day));
 

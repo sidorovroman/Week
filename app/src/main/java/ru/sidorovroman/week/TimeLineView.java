@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -18,9 +19,8 @@ import ru.sidorovroman.week.models.ActionTime;
 public class TimeLineView extends View {
 
     private final String LOG_TAG = TimeLineView.class.getSimpleName();
-    private final float timeLineWidth;
-    private final float timeInterval;
-    private final long screenWidth;
+    private float timeLineWidth;
+    private float timeInterval;
     private final List<ActionTime> actionTimes;
     private Paint timeLinePaint;
     private Paint pointPaint;
@@ -28,32 +28,43 @@ public class TimeLineView extends View {
     private Paint busyPaint;
 
     private int heightOfAction = 100;
-    private int startX = 30;
+    private int startX = 0;
+//    private int startX = 30;
 
     private long minutesInHour = 60;
     private long hoursInDay = 24;
     private long minutesInday = hoursInDay * minutesInHour;
+    private int parentWidth;
+    private List<Interval> timeOnLine = new ArrayList<>(); // интервалы времени над линией
 
-    public TimeLineView(Context context, List<ActionTime> actionTimes, long screenWidth) {
+    public TimeLineView(Context context, List<ActionTime> actionTimes) {
         super(context);
-        this.screenWidth = screenWidth;
+        Log.d(LOG_TAG, "constructor");
+
         this.actionTimes = actionTimes;
         timeLinePaint = new Paint();
         textPaint = new Paint();
         pointPaint = new Paint();
         busyPaint = new Paint();
+    }
 
-        timeLineWidth = screenWidth * 0.8f;
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        Log.d(LOG_TAG, "onMeasure");
+
+        parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+
+        timeLineWidth = parentWidth;// * 0.8f;
         timeInterval = timeLineWidth / hoursInDay;
 
-        Log.d(LOG_TAG, "getScreenWidth:" + screenWidth);
-        Log.d(LOG_TAG, "timeLineWidth:" + timeLineWidth);
-        Log.d(LOG_TAG, "timeInterval:" + timeInterval);
-
+        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
+        this.setMeasuredDimension(parentWidth, parentHeight);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.d(LOG_TAG, "onDraw");
 
         timeLinePaint.setColor(Color.LTGRAY);
         timeLinePaint.setStrokeWidth(3);
@@ -74,32 +85,98 @@ public class TimeLineView extends View {
 
         Random rnd = new Random();
 
-        for (ActionTime actionTime : actionTimes) {
+        for (ActionTime a : actionTimes) {
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            addTimeLine(canvas,actionTime.getTimeFrom(),actionTime.getTimeTo(),color);
+            boolean up = timeOnLine(a.getTimeFrom()) || timeOnLine(a.getTimeTo());
+            if (!up) {
+                timeOnLine.add(new Interval(a.getTimeFrom(), a.getTimeTo()));
+            }
+            addTimeLine(canvas, a.getTimeFrom(), a.getTimeTo(), color, up);
         }
     }
+    private boolean timeOnLine(int time){
+        for (Interval interval : timeOnLine) {
+            if(interval.getFrom() < time || time > interval.getTo()){
+                return true;
+            }
+        }
+        return false;
+    }
 
-    private void addTimeLine(Canvas canvas, int timeFrom, int timeTo, int color) {
-        int hoursFrom = timeFrom / 60;
-        int minutesFrom = timeFrom % 60;
-        float timeFromRes = hoursFrom + minutesFrom / 60f;
-
-        int hoursTo = timeTo / 60;
-        int minutesTo = timeTo % 60;
-        float timeToRes = hoursTo + minutesTo / 60f;
+    private void addTimeLine(Canvas canvas, int timeFrom, int timeTo, int color,boolean up) {
 
         busyPaint.setColor(color);
         busyPaint.setAlpha(200);
         busyPaint.setStrokeWidth(40);
 
-
-
+        int yPos = up ? heightOfAction - 20 : heightOfAction + 20;
         canvas.drawLine(
-                timeFromRes * timeInterval + startX,
-                heightOfAction - 20,
-                timeToRes * timeInterval + startX,
-                heightOfAction - 20,
+                convertTimeToXPos(timeFrom) * timeInterval + startX,
+                yPos,
+                convertTimeToXPos(timeTo) * timeInterval + startX,
+                yPos,
                 busyPaint);
+    }
+
+    private float convertTimeToXPos(int time){
+        int hoursFrom = time / 60;
+        int minutesFrom = time % 60;
+        return hoursFrom + minutesFrom / 60f;
+    }
+
+    static class Interval{
+
+        private int from = 0;
+        private int to = 0;
+
+        public Interval(int from, int to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public int getFrom() {
+            return from;
+        }
+
+        public void setFrom(int from) {
+            this.from = from;
+        }
+
+        public int getTo() {
+            return to;
+        }
+
+        public void setTo(int to) {
+            this.to = to;
+        }
+    }
+
+    static class ActionTimeIndexed{
+
+        private int index = 0;
+
+        private ActionTime actionTime;
+
+        public ActionTimeIndexed(ActionTime actionTime) {
+            this.actionTime = actionTime;
+
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public ActionTime getActionTime() {
+            return actionTime;
+        }
+
+        public void setActionTime(ActionTime actionTime) {
+            this.actionTime = actionTime;
+        }
+
     }
 }

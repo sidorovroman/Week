@@ -25,7 +25,7 @@ import ru.sidorovroman.week.models.ActionTime;
 public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "Week.db";
 
     private static final String LOG_TAG = WeekDbHelper.class.getSimpleName();
