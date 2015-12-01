@@ -29,13 +29,12 @@ public class TimeLineView extends View {
 
     private int heightOfAction = 100;
     private int startX = 0;
-//    private int startX = 30;
 
     private long minutesInHour = 60;
     private long hoursInDay = 24;
     private long minutesInday = hoursInDay * minutesInHour;
     private int parentWidth;
-    private List<Interval> timeOnLine = new ArrayList<>(); // интервалы времени над линией
+    private List<Interval> timeOnLine; // интервалы времени над линией
 
     public TimeLineView(Context context, List<ActionTime> actionTimes) {
         super(context);
@@ -66,6 +65,8 @@ public class TimeLineView extends View {
     protected void onDraw(Canvas canvas) {
         Log.d(LOG_TAG, "onDraw");
 
+        timeOnLine = new ArrayList<>();
+
         timeLinePaint.setColor(Color.LTGRAY);
         timeLinePaint.setStrokeWidth(3);
         canvas.drawLine(startX, heightOfAction, timeLineWidth + startX, heightOfAction, timeLinePaint);
@@ -87,29 +88,29 @@ public class TimeLineView extends View {
 
         for (ActionTime a : actionTimes) {
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            boolean up = timeOnLine(a.getTimeFrom()) || timeOnLine(a.getTimeTo());
-            if (!up) {
+            boolean timeIntervalOverLine = timeOverLine(a.getTimeFrom()) || timeOverLine(a.getTimeTo());
+            if (!timeIntervalOverLine) {
                 timeOnLine.add(new Interval(a.getTimeFrom(), a.getTimeTo()));
             }
-            addTimeLine(canvas, a.getTimeFrom(), a.getTimeTo(), color, up);
+            addTimeLine(canvas, a.getTimeFrom(), a.getTimeTo(), color, !timeIntervalOverLine);
         }
     }
-    private boolean timeOnLine(int time){
+    private boolean timeOverLine(int time){
         for (Interval interval : timeOnLine) {
-            if(interval.getFrom() < time || time > interval.getTo()){
+            if(interval.getFrom() < time && time < interval.getTo()){
                 return true;
             }
         }
         return false;
     }
 
-    private void addTimeLine(Canvas canvas, int timeFrom, int timeTo, int color,boolean up) {
+    private void addTimeLine(Canvas canvas, int timeFrom, int timeTo, int color, boolean addOverLine) {
 
         busyPaint.setColor(color);
         busyPaint.setAlpha(200);
         busyPaint.setStrokeWidth(40);
 
-        int yPos = up ? heightOfAction - 20 : heightOfAction + 20;
+        int yPos = addOverLine ? heightOfAction - 20 : heightOfAction + 20;
         canvas.drawLine(
                 convertTimeToXPos(timeFrom) * timeInterval + startX,
                 yPos,
