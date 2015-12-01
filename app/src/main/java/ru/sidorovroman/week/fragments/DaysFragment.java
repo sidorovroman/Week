@@ -77,7 +77,6 @@ public class DaysFragment extends Fragment {
         }
         viewPager.setAdapter(adapter);
 
-
         int currentTabIndex = WeekDay.getCurrentDayTabIndex();
         viewPager.setCurrentItem(currentTabIndex);
     }
@@ -104,9 +103,13 @@ public class DaysFragment extends Fragment {
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-                        timeToTemp = hourOfDay * 60 + minute;
-                        Toast.makeText(getActivity(),"To:" + hourOfDay + ":" + minute,Toast.LENGTH_SHORT).show();
-                        addActionTimeToAction();
+                        int time = hourOfDay * 60 + minute;
+                        if (time >= timeFromTemp) {
+                            timeToTemp = time;
+                            addActionTimeToAction();
+                        } else {
+                            Toast.makeText(getActivity(), "Время окончания деятельности должно быть после времени начала", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 },
                 now.get(Calendar.HOUR_OF_DAY),
@@ -118,7 +121,7 @@ public class DaysFragment extends Fragment {
     private void addActionTimeToAction() {
         List<Integer> weekDayIds = new ArrayList<>();
         weekDayIds.add(viewPager.getCurrentItem());
-        ActionTime actionTime = new ActionTime(tempActionId,weekDayIds,timeFromTemp,timeToTemp);
+        ActionTime actionTime = new ActionTime(tempActionId, weekDayIds, timeFromTemp, timeToTemp);
         weekDbHelper.addActionTime(actionTime);
 
         updateTabsContent();

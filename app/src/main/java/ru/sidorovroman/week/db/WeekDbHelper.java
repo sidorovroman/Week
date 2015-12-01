@@ -167,7 +167,9 @@ public class WeekDbHelper extends SQLiteOpenHelper implements Queries{
     }
 
     public void removeActionTime(Long id) {
-        getWritableDatabase().delete(EntryActionTime.TABLE_NAME, EntryActionTime._ID + "=" + id, null);
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(EntryActionTime.TABLE_NAME, EntryActionTime._ID + "=" + id, null);
+        db.close();
     }
 
     public void removeActionTimeByActionId(Long actionId) {
